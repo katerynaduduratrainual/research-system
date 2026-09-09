@@ -1,11 +1,11 @@
 ---
 id: I-001
 title: "Платформа обліку та управління парком БпЛА"
-stage: screening      # inbox | screening | deep-dive | validation | parked | killed
-decision: null        # null | advance | park | kill
+stage: parked         # inbox | screening | deep-dive | validation | parked | killed
+decision: park        # null | advance | park | kill
 created: 2026-09-09
 updated: 2026-09-09
-decided: null
+decided: 2026-09-09
 briefs: [B-001]
 reports: [R-001]
 scores:               # 1–5 per criterion from docs/rubric.md; null = не оцінено
@@ -34,6 +34,8 @@ tags: [mil-tech, dual-use, saas, drones, mro]
 Мета першого скринінгу: калібрування промптів агентів, не лише результат.
 
 ## Стан
+Рішення 2026-09-09: **park** (тестовий прогін, бал 2.35/5). Запис у docs/decision-log.md.
+
 Скринінг 2026-09-09: brief [[B-001]] зібрано (21 доказ, 17 джерел, grade A 2 · B 12 ·
 C 3). Попередні бали нижче. Звіт скринінгу: [[R-001]]; red team lite: wiki/redteam/I-001-redteam.md. Не відомо: чи платить хтось саме за облік парку (прямих
 доказів немає); чи покриває державна Mission Control / система АОЗ-ДОТ рівень
@@ -56,3 +58,4 @@ C 3). Попередні бали нижче. Звіт скринінгу: [[R-0
 - 2026-09-09 — попередні бали research-lead: 2.35 / 5
 - 2026-09-09 — red team lite записано (wiki/redteam/I-001-redteam.md): пропонує знизити «Ринок» 2→1/null, «Ризики» 3→2, «Відповідність» 3→2; нові докази E-B001-R-01…06; бали research-lead не змінено, фінальний бал ставить редактор
 - 2026-09-09 — звіт скринінгу [[R-001]] записано writer'ом; гейт 3 очікує рішення редактора
+- 2026-09-09 — рішення редактора: park (тестовий прогін); стадія screening → parked
