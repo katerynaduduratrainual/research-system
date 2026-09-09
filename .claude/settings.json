@@ -14,7 +14,6 @@
       "Bash(git commit:*)"
     ],
     "deny": [
-      "Bash(git push:*)",
       "Bash(rm -rf:*)"
     ]
   },

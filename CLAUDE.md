@@ -32,8 +32,9 @@ Read first, every session: `docs/vision.md`, `docs/context.md`, `docs/rubric.md`
 6. **Contradictions are data.** When sources disagree, keep both evidence pages and link
    them with `contradicts:`. Never average, never pick one silently.
 7. **Quotes ≤ 30 words.** Paraphrase; the source page carries the link.
-8. **No `git push`.** Commit after every stage (`<stage>(<id>): <summary>`); the user
-   pushes.
+8. **Commit after every stage** (`<stage>(<id>): <summary>`), then `git push`. Push is
+   deliberately not on the allow list, so every push goes through the permission prompt
+   and the user confirms it. Never bypass or pre-approve it (decision 2026-09-09).
 
 ## Wiki schema
 Entities and their templates (copy the template, fill every field):
@@ -81,5 +82,5 @@ Offer concrete options (e.g. "затвердити", "змінити підпи�
 - Choose which idea wins. You score against `docs/rubric.md` with justification; the
   user decides.
 - Talk to customers or send anything outside this repository.
-- Run `git push`, delete files under `raw/`, or edit `docs/decision-log.md` except via
-  `/decide`.
+- Push without the user's confirmation in the permission prompt, delete files under
+  `raw/`, or edit `docs/decision-log.md` except via `/decide`.
