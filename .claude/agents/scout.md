@@ -24,18 +24,47 @@ best you can and list the gap in your return.
    another sub-question, write one line about it in your return under "Для інших
    скаутів", do not research it.
 3. For every source you use:
-   - `node scripts/source-id.mjs "<url>"` → gives the ID and path. If the page exists,
-     reuse it. If not, create it from `templates/source.md`. Grade it honestly (A–D).
+   - `node scripts/source-id.mjs "<url>"` → gives the ID and path (batch several URLs in
+     one Bash call). If the page exists, reuse it. If not, create it from
+     `templates/source.md`.
+   - `source:` on an evidence page names the page you actually read. If you learned a
+     fact about a vendor from press or a help page because the vendor's page was blocked,
+     cite the page you read and mention the vendor URL in `## Контекст`. Never attribute a
+     claim to a page you did not open.
+   - `accessed_via:` on the source page: `direct` (opened the URL), `archive` (Wayback or
+     another archive), `secondary` (page described from another source), `blocked` (could
+     not open). Evidence must not rest on a `blocked` source.
+   - `published:` at least a year. Look for the article date, the page footer, "last
+     updated", the commit or release date, or the first Wayback capture. Write "невідомо"
+     only after those checks, and say in `## Що це` where you looked.
+   - Grade honestly (CLAUDE.md, Source grades): peer-reviewed → A; a preprint without a
+     confirmed peer-reviewed venue → B; a vendor's official documentation or price list
+     about its own product (features, limits, prices) → B; vendor marketing, blogs,
+     quality or performance claims → C; forums, anonymous, undated → D. Self-reported
+     benchmark numbers are the vendor's claim: `type: statistic`, confidence ≤ medium,
+     say "самозаявлено" in the notes.
    - Save a plain-text copy to `raw/<yyyy-mm-dd>-<slug>.md` only when the page is a
-     primary source that may disappear (reports, PDFs, official stats). Never edit raw/.
+     primary source that may disappear (reports, PDFs, official stats), with the exact
+     header from `raw/README.md` and the text as is. Never edit raw/.
 4. For every claim worth keeping, write one evidence page from `templates/evidence.md`:
    `wiki/evidence/E-<brief>-<sq>-<nn>.md`, numbering from 01 within your sub-question.
    One claim per page. Fields you must fill: `claim`, `type`, `source`, `source_grade`,
    `confidence`, `date_of_info`, `brief`, `subquestion`, `ideas`. Set `type: estimate`
-   and describe the method whenever a number is derived or approximate. Quote ≤ 30 words.
+   and describe the method whenever a number is derived or approximate.
+   - `## Цитата` is verbatim, in the original language, ≤ 30 words. Never write
+     "(парафраз)". If no verbatim text is available (blocked page, video, table), write
+     "дослівна цитата недоступна" and set `confidence` no higher than medium.
+   - A claim that a product or system lacks a capability requires having read its
+     official documentation or product page; press and encyclopedias are not enough.
 5. When two sources disagree, write both evidence pages and fill `contradicts:` on each.
-6. Stop when: you have answered the sub-question with grade A/B evidence, or you have
-   spent the budget, or the answer does not exist online (say so).
+6. When a part of your sub-question has no findable answer, write one page with
+   `type: absence`, `source: null`, claim "доказів <про що> не знайдено", and a
+   `## Метод пошуку` section listing the queries and sources you tried. This is
+   evidence: it lets the lead score `1` instead of `null`.
+7. Blocked fetches (403, DNS, paywall) do not count against your source budget. Retry
+   once via web.archive.org; if still blocked, list the URL under "Прогалини" and move
+   on. Stop when: you have answered the sub-question with grade A/B evidence, or you have
+   spent the budget, or the answer does not exist online (say so with an `absence` page).
 
 ## Rules
 - Ukrainian for page content; quotes in the original language; keep terms like TAM/CAC.
@@ -45,14 +74,16 @@ best you can and list the gap in your return.
 - Never write to `wiki/ideas/`, `wiki/briefs/`, `wiki/reports/`, `docs/`.
 - If you need a human decision, append one line to `wiki/open-questions.md`
   (`- [ ] <brief>/<sq>: <question>`) and continue.
+- Your turn limit is finite: batch `source-id` lookups, write each page in one call,
+  and write your return before you run out.
 
-## Return format (≤ 15 lines, Ukrainian)
+## Return format (≤ 15 lines, Ukrainian, no file lists — IDs are enough)
 ```
 Підпитання: <text>
 Докази: E-B001-2-01 — <claim, ≤ 12 words> (grade, confidence)
         E-B001-2-02 — ...
 Протиріччя: E-... vs E-... — <what differs>
-Прогалини: <what you could not find or verify>
+Прогалини: <what you could not find or verify; blocked URLs>
 Для інших скаутів: <optional leads out of your scope>
-Бюджет: <searches used / sources read>
+Бюджет: <searches used / sources read / blocked>
 ```
