@@ -7,7 +7,7 @@ author: "DroneLogbook"
 published: "невідомо"
 accessed: 2026-09-09
 type: vendor
-grade: C
+grade: B
 raw: null
 ---
 
@@ -27,3 +27,4 @@ Vendor content. Ціни власні (достовірні як offer), поз�
 
 ## Log
 - 2026-09-09 — створено
+- 2026-09-11 — верифікатор виправив grade C→B: власні ціни вендора за власний продукт — за новим правилом CLAUDE.md.
