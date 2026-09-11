@@ -54,10 +54,18 @@ Entities and their templates (copy the template, fill every field):
 - Source IDs are a hash of the normalised URL, so parallel scouts never collide: check
   whether the file exists before creating it.
 - Link entities by ID in double brackets: `[[E-B001-2-03]]`, `[[S-a1b2c3d4]]`, `[[I-001]]`.
-- Source grades: **A** primary data, official statistics, peer-reviewed, filings;
-  **B** reputable press, analyst reports, named experts; **C** vendor content, blogs,
-  secondary summaries; **D** forums, anonymous, undated. A claim supported only by
-  C/D sources gets `confidence: low`.
+- Source grades: **A** primary data, official statistics, peer-reviewed publications,
+  filings; **B** reputable press, analyst reports, named experts, preprints without a
+  confirmed peer-reviewed venue, and a vendor's official documentation or price list
+  about its **own** product (features, limits, prices only); **C** vendor marketing,
+  blogs, a vendor's quality or performance claims, secondary summaries; **D** forums,
+  anonymous, undated. A claim supported only by C/D sources gets `confidence: low`.
+- `source:` names the page the scout actually read. Every source page carries
+  `accessed_via: direct | archive | secondary | blocked`; evidence must not rest on a
+  `blocked` source.
+- Missing evidence is a page too: `type: absence`, `source: null`, claim "доказів …
+  не знайдено", with a `## Метод пошуку` section listing the queries tried. It counts
+  as evidence for scoring a criterion `1` instead of `null`.
 
 ## Delegation
 - One scout per sub-question. Simple question: 1 scout. Broad question: 4–7 scouts,

@@ -1,8 +1,8 @@
 ---
 id: E-B000-0-00
 claim: ""             # одне твердження, своїми словами, ≤ 25 слів
-type: fact            # fact | statistic | estimate | opinion | anecdote
-source: S-00000000
+type: fact            # fact | statistic | estimate | opinion | anecdote | absence
+source: S-00000000    # null лише для type: absence
 source_grade: C       # A | B | C | D — копія з сторінки джерела
 confidence: medium    # high | medium | low
 date_of_info: ""      # до якого періоду стосується інформація, напр. 2025-Q3
@@ -23,6 +23,9 @@ created: 0000-00-00
 
 ## Метод (тільки для type: estimate)
 Як отримано число; з чого складається; діапазон.
+
+## Метод пошуку (тільки для type: absence)
+Які запити й джерела перевірено, коли; що саме не знайдено.
 
 ## Нотатки
 Чому саме така впевненість. З чим суперечить.

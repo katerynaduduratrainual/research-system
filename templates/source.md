@@ -4,8 +4,9 @@ url: ""
 title: ""
 publisher: ""
 author: ""
-published: ""         # YYYY-MM-DD або YYYY-MM або невідомо
+published: ""         # YYYY-MM-DD, YYYY-MM або YYYY; «невідомо» лише після перевірки дати статті, футера, last updated, Wayback
 accessed: 0000-00-00
+accessed_via: direct  # direct | archive | secondary | blocked — як саме читали сторінку
 type: secondary       # primary | secondary | aggregator | vendor | forum
 grade: C              # A | B | C | D
 raw: null             # raw/YYYY-MM-DD-slug.md або null

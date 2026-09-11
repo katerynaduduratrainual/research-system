@@ -10,7 +10,9 @@ const warn = (p, m) => warnings.push(`${p.rel}: ${m}`);
 const STAGES = ["inbox", "screening", "deep-dive", "validation", "parked", "killed"];
 const BRIEF_STATUS = ["draft", "approved", "running", "collected", "done"];
 const GRADES = ["A", "B", "C", "D"];
-const E_TYPES = ["fact", "statistic", "estimate", "opinion", "anecdote"];
+const E_TYPES = ["fact", "statistic", "estimate", "opinion", "anecdote", "absence"];
+const ACCESS = ["direct", "archive", "secondary", "blocked"];
+const blockedSources = new Set();
 const CONF = ["high", "medium", "low"];
 
 const byId = new Map();
@@ -36,7 +38,9 @@ for (const p of pages) {
     if (!p.fm.question) err(p, "missing question");
   }
   if (p.rel.startsWith("wiki/evidence/")) {
-    for (const k of ["claim", "source", "type", "confidence", "brief"]) if (p.fm[k] == null || p.fm[k] === "") err(p, `missing ${k}`);
+    const required = p.fm.type === "absence" ? ["claim", "type", "confidence", "brief"] : ["claim", "source", "type", "confidence", "brief"];
+    for (const k of required) if (p.fm[k] == null || p.fm[k] === "") err(p, `missing ${k}`);
+    if (p.fm.type === "absence" && !/##\s*Метод пошуку/.test(p.body)) err(p, "absence without ## Метод пошуку");
     if (!E_TYPES.includes(p.fm.type)) err(p, `invalid type "${p.fm.type}"`);
     if (!CONF.includes(p.fm.confidence)) err(p, `invalid confidence "${p.fm.confidence}"`);
     if (p.fm.type === "estimate" && !/##\s*Метод/.test(p.body)) warn(p, "estimate without ## Метод");
@@ -49,6 +53,8 @@ for (const p of pages) {
   if (p.rel.startsWith("wiki/sources/")) {
     for (const k of ["url", "title", "accessed"]) if (!p.fm[k]) err(p, `missing ${k}`);
     if (!GRADES.includes(p.fm.grade)) err(p, `invalid grade "${p.fm.grade}"`);
+    if (p.fm.accessed_via != null && !ACCESS.includes(p.fm.accessed_via)) err(p, `invalid accessed_via "${p.fm.accessed_via}"`);
+    if (p.fm.accessed_via === "blocked") blockedSources.add(p.fm.id);
     if (p.fm.url) {
       const n = normaliseUrl(p.fm.url);
       if (sourceUrls.has(n)) err(p, `duplicate source url (also ${sourceUrls.get(n).rel})`);
@@ -74,6 +80,10 @@ for (const ref of referenced) {
 // Orphan evidence: no idea, no brief link back
 for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {
   if (!referenced.has(p.fm.id) && !(p.fm.ideas?.length) ) warn(p, "orphan evidence (not linked from any page, no ideas)");
+}
+// Evidence resting on a blocked source
+for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {
+  if (typeof p.fm.source === "string" && blockedSources.has(p.fm.source)) warn(p, `rests on a blocked source ${p.fm.source}`);
 }
 // Contradiction symmetry
 for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {
