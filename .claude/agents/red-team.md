@@ -24,9 +24,11 @@ under `wiki/reports/`.
 2. **Evidence audit.** For every evidence page: is the claim actually supported by the
    quoted source? Is the source dated within the window that matters? Is it grade C/D
    dressed as fact? List every page you would downgrade and why.
-3. **Spot-check.** Pick 5 evidence pages (prefer those carrying the biggest numbers),
-   fetch the sources, verify the claims. Report each as ✅ підтверджено / ⚠️ неточно /
-   ❌ не підтверджено.
+3. **Spot-check.** Pick 5 evidence pages (prefer those carrying the biggest numbers and
+   those the `verifier` marked `ok` — you are checking the verifier too), fetch the
+   sources, verify the claims. Report each as ✅ підтверджено / ⚠️ неточно /
+   ❌ не підтверджено, and list separately every page where you disagree with the
+   verifier's verdict.
 4. **Missing perspectives.** Who would disagree with this analysis and is not in the
    evidence: incumbents, regulators, the customer's alternative of doing nothing,
    substitutes, adjacent players who could add this as a feature.

@@ -14,6 +14,9 @@ const E_TYPES = ["fact", "statistic", "estimate", "opinion", "anecdote", "absenc
 const ACCESS = ["direct", "archive", "secondary", "blocked"];
 const blockedSources = new Set();
 const CONF = ["high", "medium", "low"];
+const VERIF = ["ok", "inexact", "failed", "unreachable"];
+const TOPIC_STATUS = ["active", "stale"];
+const briefStatus = new Map();
 
 const byId = new Map();
 const referenced = new Set();
@@ -36,6 +39,7 @@ for (const p of pages) {
   if (p.rel.startsWith("wiki/briefs/")) {
     if (!BRIEF_STATUS.includes(p.fm.status)) err(p, `invalid status "${p.fm.status}"`);
     if (!p.fm.question) err(p, "missing question");
+    if (p.fm.id) briefStatus.set(p.fm.id, p.fm.status);
   }
   if (p.rel.startsWith("wiki/evidence/")) {
     const required = p.fm.type === "absence" ? ["claim", "type", "confidence", "brief"] : ["claim", "source", "type", "confidence", "brief"];
@@ -43,6 +47,7 @@ for (const p of pages) {
     if (p.fm.type === "absence" && !/##\s*Метод пошуку/.test(p.body)) err(p, "absence without ## Метод пошуку");
     if (!E_TYPES.includes(p.fm.type)) err(p, `invalid type "${p.fm.type}"`);
     if (!CONF.includes(p.fm.confidence)) err(p, `invalid confidence "${p.fm.confidence}"`);
+    if (p.fm.verification != null && !VERIF.includes(p.fm.verification)) err(p, `invalid verification "${p.fm.verification}"`);
     if (p.fm.type === "estimate" && !/##\s*Метод/.test(p.body)) warn(p, "estimate without ## Метод");
     if (typeof p.fm.claim === "string" && p.fm.claim.split(/\s+/).length > 30) warn(p, "claim longer than 30 words");
     if (!p.fm.date_of_info) warn(p, "missing date_of_info");
@@ -62,6 +67,13 @@ for (const p of pages) {
     }
     if (!p.fm.published || /невідомо/i.test(String(p.fm.published))) warn(p, "undated source");
   }
+  if (p.rel.startsWith("wiki/topics/")) {
+    if (!/^T-[a-z0-9-]+$/.test(String(p.fm.id))) err(p, `invalid topic id "${p.fm.id}"`);
+    if (!p.fm.title) err(p, "missing title");
+    if (!p.fm.updated) err(p, "missing updated");
+    if (!TOPIC_STATUS.includes(p.fm.status)) err(p, `invalid status "${p.fm.status}"`);
+    else if (p.fm.updated && Date.now() - Date.parse(p.fm.updated) > 60 * 86400e3 && p.fm.status !== "stale") warn(p, "not updated for 60+ days; mark status: stale");
+  }
   if (p.rel.startsWith("wiki/reports/")) {
     if (!p.fm.target) err(p, "missing target");
     if (!CONF.includes(p.fm.confidence)) err(p, `invalid confidence "${p.fm.confidence}"`);
@@ -80,6 +92,18 @@ for (const ref of referenced) {
 // Orphan evidence: no idea, no brief link back
 for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {
   if (!referenced.has(p.fm.id) && !(p.fm.ideas?.length) ) warn(p, "orphan evidence (not linked from any page, no ideas)");
+}
+// Accumulation: a collected brief must be folded into topic pages; numeric claims verified
+const topicText = pages.filter(p => p.rel.startsWith("wiki/topics/") && p.fm).map(t => t.text).join("\n");
+for (const [bid, st] of briefStatus) {
+  if (!["collected", "done"].includes(st)) continue;
+  const prefix = "E-" + bid.replace("-", "") + "-";
+  const b = pages.find(p => p.fm?.id === bid);
+  if (b && !topicText.includes("[[" + prefix)) warn(b, `collected brief not folded into any topic page (no [[${prefix}…]] under wiki/topics/)`);
+}
+for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {
+  const st = briefStatus.get(p.fm.brief);
+  if (["collected", "done"].includes(st) && p.fm.type !== "absence" && /\d/.test(String(p.fm.claim)) && p.fm.verification == null) warn(p, "numeric claim not verified");
 }
 // Evidence resting on a blocked source
 for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {

@@ -19,7 +19,8 @@ the meaning of a page.
    evidence page that referenced the duplicate, delete the duplicate. Note the merge in
    the surviving page under `## Log`.
 3. **Index.** Rewrite `wiki/index.md`: ideas by stage (table: ID, title, stage, total
-   score, last update), open briefs, recent reports, counts of evidence/sources by grade.
+   score, last update), topics (table: ID, title, updated, briefs), open briefs, recent
+   reports, counts of evidence/sources by grade and of topics.
 4. **Idea cards.** For every idea, make sure `briefs:`, `reports:` and `updated:` reflect
    what exists in the wiki.
 5. **Open questions.** Deduplicate `wiki/open-questions.md`; mark answered items with
@@ -27,6 +28,10 @@ the meaning of a page.
 6. **Contradictions.** Grep evidence pages for numeric claims on the same metric for the
    same idea that differ by > 2×; if they are not linked with `contradicts:`, link them
    and add the pair to `wiki/open-questions.md`.
+
+7. **Topics.** Every `wiki/topics/T-*.md` has valid frontmatter and appears in the index;
+   set `status: stale` when `updated:` is older than 60 days, `active` otherwise. Never
+   write or rewrite topic prose — the research lead does that at the digest step.
 
 ## Rules
 - Never rewrite prose for style. Never touch `raw/`, `docs/decision-log.md`, or

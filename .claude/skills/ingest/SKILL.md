@@ -15,5 +15,7 @@ Arguments: $ARGUMENTS.
 3. Extract every claim worth keeping — usually 3–10 — as evidence pages using
    `templates/evidence.md`. IDs: `node scripts/next-id.mjs E-ING-<yyyymmdd>`. Fill
    `ideas:` / `brief:` when given. Contradictions with existing evidence → `contradicts:`.
-4. Spawn `librarian` for lint and index. Commit `ingest(S-<hash8>): <slug>`.
+4. Spawn `verifier` for the new evidence IDs. Update the relevant topic page(s) under
+   `wiki/topics/` with the new claims. Spawn `librarian` for lint and index. Commit
+   `ingest(S-<hash8>): <slug>`.
 5. Return: source ID + grade, evidence IDs with one-line claims, any contradiction found.

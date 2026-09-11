@@ -12,7 +12,7 @@ the sub-questions from `docs/rubric.md` — at least one sub-question per criter
 screening could not score or scored ≤ 3, plus the red team's kill criteria from the
 screen report if one exists. 5–7 sub-questions, kill-capable ones first. Stop at gate 1.
 
-**Stage B — evidence (gate 2).** On approval, follow `/run` steps 1–6 for this brief.
+**Stage B — evidence (gate 2).** On approval, follow `/run` steps 1–8 for this brief.
 Stop at gate 2. Loop on "копати глибше" until the user says proceed.
 
 **Stage C — analysis and attack.** Spawn `analyst` for the idea. Wait. Then spawn

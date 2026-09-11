@@ -11,6 +11,8 @@ subquestion: 0
 ideas: []             # [I-001]
 contradicts: []       # [E-...]
 created: 0000-00-00
+verified: null        # дата перевірки verifier'ом
+verification: null    # ok | inexact | failed | unreachable
 ---
 
 # {{claim}}
@@ -26,6 +28,9 @@ created: 0000-00-00
 
 ## Метод пошуку (тільки для type: absence)
 Які запити й джерела перевірено, коли; що саме не знайдено.
+
+## Верифікація
+_(заповнює verifier: дата — вердикт: що каже джерело; що виправити)_
 
 ## Нотатки
 Чому саме така впевненість. З чим суперечить.

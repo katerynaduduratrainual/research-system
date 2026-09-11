@@ -24,7 +24,8 @@ for (const b of briefs) console.log(`${b.fm.id} [${b.fm.status}] ${b.fm.question
 console.log("\n## Reports");
 for (const r of reports.slice(-5)) console.log(`${r.fm.id} → ${r.fm.target} (${r.fm.type}, ${r.fm.confidence})`);
 const grades = {}; for (const s of sources) grades[s.fm.grade] = (grades[s.fm.grade] ?? 0) + 1;
-console.log(`\n## Counts\nevidence ${evidence.length} · sources ${sources.length} ${JSON.stringify(grades)} · ideas ${ideas.length}`);
+const topics = pages.filter(p => p.rel.startsWith("wiki/topics/") && p.fm);
+console.log(`\n## Counts\nevidence ${evidence.length} · sources ${sources.length} ${JSON.stringify(grades)} · ideas ${ideas.length} · topics ${topics.length} (stale ${topics.filter(t => t.fm.status === "stale").length})`);
 const oq = join(ROOT, "wiki", "open-questions.md");
 if (existsSync(oq)) {
   const open = readFileSync(oq, "utf8").split("\n").filter(l => l.startsWith("- [ ]"));

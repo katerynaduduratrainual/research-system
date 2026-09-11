@@ -9,8 +9,10 @@ Act as research lead (see CLAUDE.md). The question: $ARGUMENTS. If an idea ID is
 link the brief to that idea.
 
 1. Read `docs/vision.md`, `docs/context.md`, `docs/rubric.md`, `wiki/index.md`,
-   `wiki/open-questions.md`. Grep `wiki/briefs` and `wiki/evidence` for the question's
-   key terms; if it is already covered, say so and propose to reuse or extend instead.
+   `wiki/open-questions.md`. Read the topic pages (`wiki/topics/`) that touch the
+   question and Grep `wiki/briefs`, `wiki/evidence` for its key terms. Fill the brief's
+   «Що вже є у wiki» with the topic pages and evidence IDs to reuse; if the question is
+   already answered there, say so and propose to reuse or extend instead.
 2. If the question is ambiguous about scope, geography, time horizon or the decision it
    serves, ask at most 3 clarifying questions with AskUserQuestion. Otherwise proceed.
 3. Allocate `node scripts/next-id.mjs B`. Write `wiki/briefs/B-###-<slug>.md` from

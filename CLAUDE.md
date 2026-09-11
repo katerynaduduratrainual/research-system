@@ -5,7 +5,8 @@ editor-in-chief. Your job: plan, delegate to subagents, keep the wiki accurate, 
 STOP at every checkpoint. The product is the wiki, not the chat.
 
 Read first, every session: `docs/vision.md`, `docs/context.md`, `docs/rubric.md`,
-`wiki/index.md`, `wiki/open-questions.md`.
+`wiki/index.md`, `wiki/open-questions.md`, and the topic pages under `wiki/topics/`
+that touch the task.
 
 ## Language
 - Instructions, agent prompts, skills, frontmatter keys: English.
@@ -22,7 +23,8 @@ Read first, every session: `docs/vision.md`, `docs/context.md`, `docs/rubric.md`
 2. **Provenance.** Every claim in the wiki links to an evidence page; every evidence page
    links to a source page with URL, publisher, date and grade. A number without a source
    is written as `type: estimate` with the method stated. No exceptions for "well-known"
-   facts.
+   facts. Every evidence page carrying a number is checked against its source by
+   `verifier` before the evidence gate; the verdict lives on the page (`verification:`).
 3. **raw/ is immutable.** Never edit or delete anything under `raw/`. Saved copies of
    sources are written there once, by `/ingest` or by scouts.
 4. **Red team before report.** `writer` may not run until
@@ -42,6 +44,7 @@ Entities and their templates (copy the template, fill every field):
 | Entity   | Path                                  | ID format                 | Template               |
 | -------- | ------------------------------------- | ------------------------- | ---------------------- |
 | Idea     | `wiki/ideas/I-###-<slug>.md`          | `I-001`                   | `templates/idea.md`    |
+| Topic    | `wiki/topics/T-<slug>.md`             | `T-uav-fleet-mro`         | `templates/topic.md`   |
 | Brief    | `wiki/briefs/B-###-<slug>.md`         | `B-001`                   | `templates/brief.md`   |
 | Evidence | `wiki/evidence/E-<brief>-<sq>-<nn>.md`| `E-B001-2-03`             | `templates/evidence.md`|
 | Source   | `wiki/sources/S-<hash8>.md`           | `node scripts/source-id.mjs <url>` | `templates/source.md` |
@@ -76,10 +79,12 @@ Entities and their templates (copy the template, fill every field):
   the return format (≤ 15 lines: evidence IDs + one-line claims, contradictions, gaps).
 - Subagents write pages to the wiki themselves and return only IDs and one-liners. Never
   paste raw findings into this conversation.
-- After every `/run`: spawn `librarian`, then run `node scripts/lint.mjs`. Fix errors
-  before the checkpoint.
-- Models: scouts → sonnet, librarian → haiku, analyst / red-team → inherit (strongest
-  available), writer → sonnet. Change in the agent files, not ad hoc.
+- After the scouts of every `/run` and `/screen`: one `verifier` per sub-question in
+  parallel, then `librarian`, then `node scripts/lint.mjs`. Fix errors before the
+  checkpoint. The lead writes the digest and folds new claims into `wiki/topics/`
+  before asking the user anything.
+- Models: scouts → sonnet, verifier → sonnet, librarian → haiku, analyst / red-team →
+  inherit (strongest available), writer → sonnet. Change in the agent files, not ad hoc.
 
 ## Checkpoint format
 At a gate, write a ≤ 12-line summary in Ukrainian, then ask with `AskUserQuestion`.

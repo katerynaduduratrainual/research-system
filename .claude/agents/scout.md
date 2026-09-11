@@ -16,9 +16,11 @@ sources to try first, budget, return format. If any of these is missing, do the 
 best you can and list the gap in your return.
 
 ## Procedure
-1. Read `docs/context.md` and the brief page named in your task. Read
-   `wiki/open-questions.md`. Check `wiki/evidence/` and `wiki/sources/` for anything
-   already covering your sub-question (Grep for key terms) — do not re-collect it; link it.
+1. Read `docs/context.md` and the brief page named in your task, including its section
+   «Що вже є у wiki». Read every topic page it names (`wiki/topics/T-*.md`) and Grep
+   `wiki/topics/`, `wiki/evidence/` and `wiki/sources/` for your key terms. Evidence
+   that already exists is cited by ID in your return and in new pages' `## Контекст`;
+   it is never re-collected. Read `wiki/open-questions.md`.
 2. Search. Start broad (2–4 words), then narrow. Prefer primary sources (grade A/B) over
    summaries. Follow leads, but stay inside your scope: if you find something relevant to
    another sub-question, write one line about it in your return under "Для інших
