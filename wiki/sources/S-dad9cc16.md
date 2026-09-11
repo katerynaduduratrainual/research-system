@@ -7,7 +7,7 @@ author: "Andries Smit et al."
 published: "2023-11-29"
 accessed: 2026-09-11
 type: primary
-grade: A
+grade: B
 raw: null
 ---
 
@@ -28,3 +28,4 @@ raw: null
 
 ## Log
 - 2026-09-11 — створено
+- 2026-09-11 — verifier: grade A→B — препринт arXiv (2311.17371), venue рецензування в Comments не вказано.

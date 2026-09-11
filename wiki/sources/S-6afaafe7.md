@@ -7,7 +7,7 @@ author: "Mingxuan Du et al."
 published: "2025-06-13"
 accessed: 2026-09-11
 type: primary
-grade: A
+grade: B
 raw: null
 ---
 
@@ -28,3 +28,4 @@ raw: null
 
 ## Log
 - 2026-09-11 — створено
+- 2026-09-11 — verifier: grade A→B — сторінка arXiv (2506.11763) не містить Comments/journal-ref про прийняття на рецензовану конференцію; препринт без підтвердженого venue (CLAUDE.md).

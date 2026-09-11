@@ -7,7 +7,7 @@ author: "Jason Wei et al."
 published: "2025-04-16"
 accessed: 2026-09-11
 type: primary
-grade: A
+grade: C
 raw: null
 ---
 
@@ -27,3 +27,4 @@ raw: null
 
 ## Log
 - 2026-09-11 — створено
+- 2026-09-11 — verifier: grade A→C — OpenAI оцінює власний продукт (Deep Research) на власному бенчмарку (BrowseComp); стаття прямо зазначає, що модель тренована спеціально під задачі типу BrowseComp — самооцінка вендора (CLAUDE.md: vendor self-eval → C).

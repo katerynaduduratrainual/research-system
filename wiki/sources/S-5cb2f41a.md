@@ -7,7 +7,7 @@ author: "Scale AI Research team et al."
 published: "2025-11-10"
 accessed: 2026-09-11
 type: primary
-grade: A
+grade: B
 raw: null
 ---
 
@@ -29,3 +29,4 @@ Grade A.
 
 ## Log
 - 2026-09-11 — створено
+- 2026-09-11 — verifier: grade A→B — поле Comments на arXiv прямо вказує «pre-print», рецензування не підтверджено.
