@@ -2,10 +2,10 @@
 id: B-002
 question: "Які підходи до LLM-систем дослідження (deep research, multi-agent, LLM-wiki, валідація бізнес-ідей) існують на ринку та в літературі 2025–2026, і що з них варто запозичити в research-system?"
 idea: null            # мета-дослідження системи, не бізнес-ідея
-status: draft         # draft | approved | running | collected | done
+status: running         # draft | approved | running | collected | done
 created: 2026-09-11
-approved: null
-run_started: null
+approved: 2026-09-11
+run_started: 2026-09-11
 budget:
   scouts: 6
   searches_per_scout: 12
