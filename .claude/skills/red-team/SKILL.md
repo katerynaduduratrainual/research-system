@@ -1,15 +1,17 @@
 ---
 name: red-team
-description: Run the red team on an idea (full or lite) outside the deep-dive pipeline.
-argument-hint: 'I-### [full|lite]'
+description: Run the red team on an idea or a brief (full or lite) in the background, outside a plan checkpoint.
+argument-hint: 'I-### | B-### [full|lite]'
 disable-model-invocation: true
 ---
 
-Arguments: $ARGUMENTS (idea ID, mode defaults to `full`).
+Arguments: $ARGUMENTS (idea or brief ID, mode defaults to `full`).
 
-1. Verify the idea card exists and has at least one brief with `status: collected` or
+1. Verify the target exists and has at least one brief with `status: collected` or
    later. If not, say what is missing and stop.
-2. Spawn `red-team` with the idea ID and mode. Wait.
-3. Run lint (new evidence may have been added). Commit `redteam(I-###): <mode>`.
-4. Show the return (top 3 failure reasons, downgrade count, spot-check tally, the single
-   most decisive fact). Remind the user that `/report` is now unlocked.
+2. Spawn `red-team` with the ID and mode in the background. Tell the user in one line
+   that it started and end the turn.
+3. On its completion: run lint (new evidence may have been added). Commit
+   `redteam(<id>): <mode>`. Tell the user in ≤ 4 lines: top 3 failure reasons, downgrade
+   count, spot-check tally, the single most decisive fact; and that `/report` is now
+   unlocked. Ask nothing.

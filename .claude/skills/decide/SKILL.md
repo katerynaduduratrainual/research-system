@@ -18,7 +18,17 @@ Arguments: $ARGUMENTS.
    - Що б змінило рішення: <copy from report>
    - Переглянути: <date or condition, for park>
    ```
-3. Update the idea card: `decision:`, `decided:`, `stage:` (advance → `validation` from
-   deep-dive, or `deep-dive` from screening; park → `parked`; kill → `killed`), `updated:`.
-4. Spawn `librarian` for tasks 3–5 only (index, cards, open questions).
-5. Commit `decide(I-###): <decision>`. Confirm in one line. No commentary on the decision.
+   If there is no report yet (the user moves an idea onto the long track on their own
+   call), write `На основі: звіту немає — рішення редактора; докази: [[B-###]]` and
+   `Що б змінило рішення: визначить план [[P-I-###]]`.
+3. Update the idea card: `decision:`, `decided:`, `stage:` (advance → `deep-dive` from
+   `inbox` or `screening`, `validation` from `deep-dive`; park → `parked`; kill →
+   `killed`), `updated:`.
+4. If the idea has a plan and the decision is park, kill, or an advance out of
+   `deep-dive`: set the plan `status: closed`, `checkpoint: null`, `updated:`, and add a
+   `## Лог` line with the decision.
+5. Commit `decide(I-###): <decision>`. `git push`. Confirm in one line; after an advance
+   onto the long track add the next step, `/plan I-###`. No commentary on the decision.
+6. Spawn `librarian` for tasks 3–5 only (index, cards, open questions) in the
+   background. When it finishes, commit `lint: index after decide(I-###)` if anything
+   changed. Say nothing unless it failed.
