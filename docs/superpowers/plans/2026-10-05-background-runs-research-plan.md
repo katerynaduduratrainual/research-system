@@ -97,18 +97,18 @@ wording.
   without `workstream`.
 
 **Steps:**
-- [ ] `RESEARCH_ROOT` in `_lib.mjs`; `scripts/tests/helpers.mjs` (temp wiki builder,
+- [x] `RESEARCH_ROOT` in `_lib.mjs`; `scripts/tests/helpers.mjs` (temp wiki builder,
   script runner).
-- [ ] Failing tests in `scripts/tests/lint.test.mjs` and `status.test.mjs` for every
+- [x] Failing tests in `scripts/tests/lint.test.mjs` and `status.test.mjs` for every
   rule above. Run: `node scripts/tests/lint.test.mjs`, `node scripts/tests/status.test.mjs`
   — expect failures.
-- [ ] Implement in `lint.mjs`, `status.mjs`, `now.mjs` until both test files pass.
-- [ ] `templates/brief.md`: the five new fields and `## Журнал прогону`.
-- [ ] Migration: add the fields to B-001 (`reviewed: 2026-09-09`), B-002
+- [x] Implement in `lint.mjs`, `status.mjs`, `now.mjs` until both test files pass.
+- [x] `templates/brief.md`: the five new fields and `## Журнал прогону`.
+- [x] Migration: add the fields to B-001 (`reviewed: 2026-09-09`), B-002
   (`reviewed: 2026-09-11`), B-003 (`reviewed: null`).
-- [ ] `node scripts/lint.mjs` → 0 errors; `node scripts/status.mjs` → B-003 under gate 2,
+- [x] `node scripts/lint.mjs` → 0 errors; `node scripts/status.mjs` → B-003 under gate 2,
   nothing under gate 3.
-- [ ] Commit `feat(pipeline): run state, plan checks and waiting list in status`.
+- [x] Commit `feat(pipeline): run state, plan checks and waiting list in status`.
 
 ### Task 3: Background `/run`, deferred gates, rules
 
@@ -119,52 +119,52 @@ other skills refer to: "Start", "On each completion notification", "Resume", "Fo
 run" in `/run`; `/review [B-### | I-###]`.
 
 **Steps:**
-- [ ] Rewrite `run/SKILL.md` per spec 4.2, 4.5–4.7.
-- [ ] Write `review/SKILL.md` per spec 5 and 6.4 (model-invocable; push at the end).
-- [ ] Update `status/SKILL.md` to present the three new blocks first.
-- [ ] `CLAUDE.md`: rule 1 (deferred gates), rule 8 (push at gates, dated 2026-10-05),
+- [x] Rewrite `run/SKILL.md` per spec 4.2, 4.5–4.7.
+- [x] Write `review/SKILL.md` per spec 5 and 6.4 (model-invocable; push at the end).
+- [x] Update `status/SKILL.md` to present the three new blocks first.
+- [x] `CLAUDE.md`: rule 1 (deferred gates), rule 8 (push at gates, dated 2026-10-05),
   schema row for Plan, Delegation (background always, continue from the file's state,
   verifier right after its scout, limit of two, tails one at a time, `now.mjs`),
   checkpoint format, "What you never do".
-- [ ] Check: every skill frontmatter still parses (name, description present); lint 0
+- [x] Check: every skill frontmatter still parses (name, description present); lint 0
   errors.
-- [ ] Commit `feat(pipeline): background runs and gates on demand`.
+- [x] Commit `feat(pipeline): background runs and gates on demand`.
 
 ### Task 4: The other skills in the background
 
 **Files:** rows marked 4.
 
 **Steps:**
-- [ ] `screen`: steps 1–2 unchanged, then the `/run` chain; after the digest the lead
+- [x] `screen`: steps 1–2 unchanged, then the `/run` chain; after the digest the lead
   scores, then `run_stage: redteam` → red team lite → `run_stage: report` → writer →
   brief `status: done`, `run_stage: null`; one line pointing to `/review I-###`.
-- [ ] `red-team`, `report`, `ingest`, `lint`: agent in the background, one line at the
+- [x] `red-team`, `report`, `ingest`, `lint`: agent in the background, one line at the
   start, continuation on completion.
-- [ ] `decide`: record and commit at once, push, librarian in the background; advance
+- [x] `decide`: record and commit at once, push, librarian in the background; advance
   from screening points to `/plan I-###`; a recorded decision closes the idea's plan.
-- [ ] Check: `grep -rn "Wait\b" .claude/skills` finds no foreground wait; lint 0 errors.
-- [ ] Commit `feat(skills): screen, red-team, report, ingest, decide, lint run in background`.
+- [x] Check: `grep -rn "Wait\b" .claude/skills` finds no foreground wait; lint 0 errors.
+- [x] Commit `feat(skills): screen, red-team, report, ingest, decide, lint run in background`.
 
 ### Task 5: The plan
 
 **Files:** rows marked 5.
 
 **Steps:**
-- [ ] `templates/plan.md` per spec 6.1–6.3.
-- [ ] `plan/SKILL.md` per spec 6.4–6.5 (sections: no plan yet; plan exists; phase exit
+- [x] `templates/plan.md` per spec 6.1–6.3.
+- [x] `plan/SKILL.md` per spec 6.4–6.5 (sections: no plan yet; plan exists; phase exit
   and checkpoints; synthesis; edits in plain words).
-- [ ] Remove `.claude/skills/deep-dive/`; replace every `/deep-dive` reference
+- [x] Remove `.claude/skills/deep-dive/`; replace every `/deep-dive` reference
   (`grep -rn "deep-dive" --include=*.md --include=*.mjs .` must leave only the idea
   `stage` value, the spec, the plan and the retro).
-- [ ] MVP plan: `## План MVP` in `templates/report.md`, `## Основа для плану MVP` in
+- [x] MVP plan: `## План MVP` in `templates/report.md`, `## Основа для плану MVP` in
   `templates/analysis.md`, matching steps in `analyst.md` and `writer.md`.
-- [ ] `research-lead.md`, `librarian.md` (plans table in the index, `briefs:` on plans),
+- [x] `research-lead.md`, `librarian.md` (plans table in the index, `briefs:` on plans),
   `red-team.md` description.
-- [ ] `docs/vision.md` (editor drives ideas, deferred gates, long track, stage meanings,
+- [x] `docs/vision.md` (editor drives ideas, deferred gates, long track, stage meanings,
   roadmap), `docs/workflow.md` (day on the long track, gates, commands), `README.md`.
-- [ ] Check: a plan built from the template with real IDs passes lint in a temp wiki
+- [x] Check: a plan built from the template with real IDs passes lint in a temp wiki
   (covered by Task 2 tests); real wiki lint 0 errors; `node scripts/status.mjs` runs.
-- [ ] Commit `feat(plan): research plan entity, /plan replaces /deep-dive`.
+- [x] Commit `feat(plan): research plan entity, /plan replaces /deep-dive`.
 
 ### Task 6: Acceptance on I-002 (needs the editor)
 

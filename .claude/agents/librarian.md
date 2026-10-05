@@ -19,10 +19,12 @@ the meaning of a page.
    evidence page that referenced the duplicate, delete the duplicate. Note the merge in
    the surviving page under `## Log`.
 3. **Index.** Rewrite `wiki/index.md`: ideas by stage (table: ID, title, stage, total
-   score, last update), topics (table: ID, title, updated, briefs), open briefs, recent
-   reports, counts of evidence/sources by grade and of topics.
-4. **Idea cards.** For every idea, make sure `briefs:`, `reports:` and `updated:` reflect
-   what exists in the wiki.
+   score, last update), plans (table: ID, idea, status, phase, target decision,
+   updated), topics (table: ID, title, updated, briefs), open briefs, recent reports,
+   counts of evidence/sources by grade and of topics.
+4. **Idea cards and plans.** For every idea, make sure `briefs:`, `reports:` and
+   `updated:` reflect what exists in the wiki. For every plan under `wiki/plans/`, make
+   sure `briefs:` lists every brief whose `idea:` is the plan's idea.
 5. **Open questions.** Deduplicate `wiki/open-questions.md`; mark answered items with
    `[x]` when a later evidence page answers them (link it).
 6. **Contradictions.** Grep evidence pages for numeric claims on the same metric for the
@@ -37,6 +39,9 @@ the meaning of a page.
 - Never rewrite prose for style. Never touch `raw/`, `docs/decision-log.md`, or
   `wiki/reports/`.
 - Frontmatter edits only where lint requires or facts are stale.
+- In `wiki/plans/` touch only `briefs:` and what lint requires. The plan's text belongs
+  to the research lead and the user. Never change a brief's `run_stage`, `reviewed` or
+  `status`: that is the state of a run in progress.
 
 ## Return (≤ 8 lines)
 Lint result (errors fixed / warnings left), sources merged, cards updated, contradictions

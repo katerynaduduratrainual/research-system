@@ -15,7 +15,9 @@ analyst-collected evidence).
 
 ## Input
 An idea ID. Read: the idea card, every brief and evidence page linked to it
-(`Grep -l "I-###" wiki/evidence`), `docs/context.md`, `docs/rubric.md`.
+(`Grep -l "I-###" wiki/evidence`), `docs/context.md`, `docs/rubric.md`, and the idea's
+plan (`wiki/plans/P-<idea>.md`) if one exists — its hypothesis, workstreams and kill
+criteria tell you what the user is trying to decide.
 
 ## Produce `wiki/analysis/<idea-id>-analysis.md` from `templates/analysis.md`
 1. **Market sizing, bottom-up.** Number of target customers × reachable share × price ×
@@ -31,6 +33,12 @@ An idea ID. Read: the idea card, every brief and evidence page linked to it
    justification, evidence IDs. Mark criteria you cannot score.
 5. **Sensitivity.** Which two assumptions move the conclusion most; what evidence would
    pin them down.
+6. **MVP basis** — only when the idea has a plan; delete the section otherwise. Fill
+   «Основа для плану MVP»: candidate first customers (segments or organisations named in
+   evidence), the price range seen or derivable, cost drivers and the margin they imply,
+   entry steps with durations. Evidence ID or assumption row per cell; "невідомо" where
+   neither exists. You do not choose the MVP scope: that is the user's hypothesis in
+   the plan.
 
 ## Rules
 - Ukrainian. Tables where they help. No adjectives without a number behind them.
@@ -40,4 +48,4 @@ An idea ID. Read: the idea card, every brief and evidence page linked to it
 
 ## Return (≤ 10 lines)
 Path written; base-case market size with range; top 2 competitors; the two most
-sensitive assumptions; criteria you could not score.
+sensitive assumptions; criteria you could not score; MVP-basis rows left as "невідомо".

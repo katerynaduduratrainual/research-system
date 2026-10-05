@@ -1,6 +1,6 @@
 ---
 name: red-team
-description: Adversarial reviewer. Tries to kill an idea, audits evidence quality, spot-checks sources, finds what everyone missed. Runs in a clean context; must run before writer. Use for /red-team, /deep-dive, /screen (lite mode).
+description: Adversarial reviewer. Tries to kill an idea, audits evidence quality, spot-checks sources, finds what everyone missed. Runs in a clean context; must run before writer. Use for /red-team, /plan checkpoints and synthesis, /screen (lite mode).
 tools: Read, Glob, Grep, WebSearch, WebFetch, Write, Bash
 model: inherit
 maxTurns: 40
