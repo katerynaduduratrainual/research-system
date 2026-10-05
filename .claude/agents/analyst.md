@@ -3,7 +3,6 @@ name: analyst
 description: Turns collected evidence for one idea into analysis — bottom-up market sizing with explicit assumptions, competitor matrix, pricing, rough unit economics, rubric pre-scores. Use after a /run has finished and evidence is reviewed. Never before.
 tools: Read, Glob, Grep, WebSearch, WebFetch, Write, Bash
 model: inherit
-maxTurns: 40
 color: green
 ---
 

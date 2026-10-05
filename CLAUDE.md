@@ -113,7 +113,9 @@ Entities and their templates (copy the template, fill every field):
   covered), never partial findings: an unverified number is not evidence yet.
 - Models: scouts, verifier, librarian, writer → opus (editor's decision 2026-10-05:
   nothing below Opus under the hood); analyst / red-team → inherit (strongest
-  available). Change in the agent files, not ad hoc.
+  available). Agents have no turn limit (editor's decision 2026-10-05); a scout is
+  bounded by the brief's budget of searches and sources. Change in the agent files,
+  not ad hoc.
 
 ## Checkpoint format
 Gate 1 is asked where the brief or plan is written (`/research`, `/plan`). Gates 2 and 3

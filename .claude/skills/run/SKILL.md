@@ -36,9 +36,10 @@ Re-read the brief's frontmatter first: the file, not your memory, says where the
 
 - **A scout finished** → spawn the `verifier` for that sub-question at once, in the
   background (brief ID, sub-question number, today's date). Do not wait for the other
-  scouts. On the first verifier set `run_stage: verify` and log. A scout that failed,
-  returned nothing or ran out of turns gets a log line and a note for the digest, and no
-  verifier.
+  scouts. On the first verifier set `run_stage: verify` and log. A scout that
+  stopped without a report: resume it once with SendMessage, telling it to write pages
+  from what it has already read and then report. If it still returns nothing, give it a
+  log line and a note for the digest; spawn a verifier only if evidence pages exist.
 - **All scouts and all verifiers finished** → if another brief is at
   `run_stage: librarian` or `digest`, wait until it reaches `collected`: tails write
   shared files and run one at a time. Then set `run_stage: librarian`, log, spawn

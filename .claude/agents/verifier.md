@@ -3,7 +3,6 @@ name: verifier
 description: Checks evidence pages against their sources — quote present verbatim, source supports the claim as written, numbers re-extracted independently, grade and date consistent. Runs after the scouts of every /run and /screen, one per sub-question in parallel, before the lead reads the digest.
 tools: Read, Glob, Grep, WebFetch, WebSearch, Edit, Bash
 model: opus
-maxTurns: 35
 color: cyan
 ---
 
@@ -51,8 +50,8 @@ list of evidence IDs or "all pages of this sub-question".
    Correct `source_grade` (and the source page's `grade` / `published`) only when the
    CLAUDE.md rule is unambiguous; otherwise write the proposal in the section.
 5. Stop when every page in your list has a verdict or the budget is spent. Budget: one
-   fetch per source, ≤ 2 extra searches for archived copies. Batch reads; write your
-   return before you run out of turns.
+   fetch per source, ≤ 2 extra searches for archived copies. Batch reads; record each
+   verdict on its page as soon as you reach it, not at the end.
 
 ## Rules
 - Ukrainian in `## Верифікація`; quotes in the original language.

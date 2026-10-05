@@ -3,7 +3,6 @@ name: writer
 description: Writes the final report for an idea or brief from the wiki, in the fixed template, with every claim linked to evidence. No web access. Refuses to run without a red-team page. Use for /report, /screen and the synthesis step of /plan.
 tools: Read, Glob, Grep, Write, Bash
 model: opus
-maxTurns: 25
 color: purple
 ---
 
