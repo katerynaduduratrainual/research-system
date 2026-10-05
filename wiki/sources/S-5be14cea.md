@@ -3,7 +3,7 @@ id: S-5be14cea
 url: "https://www.anthropic.com/engineering/multi-agent-research-system"
 title: "How we built our multi-agent research system"
 publisher: "Anthropic (Engineering blog)"
-author: "Anthropic engineering team"
+author: "Jeremy Hadfield, Barry Zhang, Kenneth Lien, Florian Scholz, Jeremy Fox, Daniel Ford (Anthropic engineering team)"
 published: "2025-06-13"
 accessed: 2026-09-11
 type: primary
@@ -28,6 +28,9 @@ Vendor-блог про власну систему — висока довіра
 ## Використано в
 - [[E-B002-6-05]]
 - [[E-B002-6-06]]
+- [[E-B002-2-01]]
+- [[E-B002-2-02]]
 
 ## Log
 - 2026-09-11 — створено
+- 2026-10-05 — librarian: злито дубль [[S-f719285f]] (той самий пост за URL https://www.anthropic.com/engineering/built-multi-agent-research-system); перенесено авторів; [[E-B002-2-01]] і [[E-B002-2-02]] переприв'язано сюди. Обидві сторінки створено 2026-09-11 одним комітом; залишено цю, бо на неї посилаються topics
