@@ -6,6 +6,10 @@ status: collected      # draft | approved | running | collected | done
 created: 2026-09-09
 approved: 2026-09-09
 run_started: 2026-09-09
+run_stage: null       # queued | scouts | verify | librarian | digest | redteam | report | null
+run_finished: null    # yyyy-mm-ddThh:mm
+reviewed: 2026-09-09  # yyyy-mm-dd — гейт 2 пройдено (скринінг: разом із гейтом 3)
+workstream: null      # demand | competition | complexity | economics | entry | null (наскрізний)
 budget:
   scouts: 3
   searches_per_scout: 8

@@ -2,7 +2,8 @@
 import { readdirSync, readFileSync, statSync } from "node:fs";
 import { join, relative } from "node:path";
 
-export const ROOT = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
+// RESEARCH_ROOT points the scripts at another repository root (used by scripts/tests).
+export const ROOT = process.env.RESEARCH_ROOT ?? new URL("..", import.meta.url).pathname.replace(/\/$/, "");
 export const WIKI = join(ROOT, "wiki");
 
 export function walk(dir, out = []) {

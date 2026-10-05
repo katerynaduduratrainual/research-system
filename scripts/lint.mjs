@@ -16,6 +16,12 @@ const blockedSources = new Set();
 const CONF = ["high", "medium", "low"];
 const VERIF = ["ok", "inexact", "failed", "unreachable"];
 const TOPIC_STATUS = ["active", "stale"];
+const RUN_STAGE = ["queued", "scouts", "verify", "librarian", "digest", "redteam", "report"];
+const WORKSTREAMS = ["demand", "competition", "complexity", "economics", "entry"];
+const PLAN_STATUS = ["draft", "active", "paused", "closed"];
+const PLAN_PHASE = ["map", "depth", "synthesis"];
+const CHECKPOINT = ["running", "ready"];
+const DAY = 86400e3;
 const briefStatus = new Map();
 
 const byId = new Map();
@@ -40,6 +46,28 @@ for (const p of pages) {
     if (!BRIEF_STATUS.includes(p.fm.status)) err(p, `invalid status "${p.fm.status}"`);
     if (!p.fm.question) err(p, "missing question");
     if (p.fm.id) briefStatus.set(p.fm.id, p.fm.status);
+    if (p.fm.run_stage != null && !RUN_STAGE.includes(p.fm.run_stage)) err(p, `invalid run_stage "${p.fm.run_stage}"`);
+    if (p.fm.status === "running" && p.fm.run_stage == null) err(p, "running brief without run_stage");
+    if (p.fm.workstream != null && !WORKSTREAMS.includes(p.fm.workstream)) err(p, `invalid workstream "${p.fm.workstream}"`);
+    const since = p.fm.run_finished ?? p.fm.run_started;
+    if (p.fm.status === "collected" && p.fm.reviewed == null && p.fm.run_stage == null && since && Date.now() - Date.parse(since) > 7 * DAY)
+      warn(p, `awaiting gate 2 for 7+ days: /review ${p.fm.id}`);
+  }
+  if (p.rel.startsWith("wiki/plans/")) {
+    const { status, phase, checkpoint, idea } = p.fm;
+    if (!/^I-\d{3}$/.test(String(idea))) err(p, `invalid idea "${idea}"`);
+    else if (p.fm.id !== `P-${idea}`) err(p, `plan id must be P-${idea}`);
+    if (!PLAN_STATUS.includes(status)) err(p, `invalid status "${status}"`);
+    if (!PLAN_PHASE.includes(phase)) err(p, `invalid phase "${phase}"`);
+    if (checkpoint != null && !CHECKPOINT.includes(checkpoint)) err(p, `invalid checkpoint "${checkpoint}"`);
+    for (const w of WORKSTREAMS) {
+      const c = p.fm.confidence?.[w];
+      if (c === undefined) err(p, `confidence missing ${w}`);
+      else if (c !== null && !CONF.includes(c)) err(p, `invalid confidence.${w} "${c}"`);
+    }
+    if (["active", "paused"].includes(status)) for (const k of ["started", "target_decision"]) if (!p.fm[k]) err(p, `${status} plan without ${k}`);
+    if (status === "active" && p.fm.updated && Date.now() - Date.parse(p.fm.updated) > 14 * DAY) warn(p, "active plan not updated for 14+ days");
+    for (const b of p.fm.briefs ?? []) referenced.add(b);
   }
   if (p.rel.startsWith("wiki/evidence/")) {
     const required = p.fm.type === "absence" ? ["claim", "type", "confidence", "brief"] : ["claim", "source", "type", "confidence", "brief"];
@@ -88,6 +116,17 @@ for (const ref of referenced) {
     const owners = pages.filter(p => p.text.includes(`[[${ref}]]`) || p.fm?.source === ref || (p.fm?.contradicts ?? []).includes(ref)).map(p => p.rel);
     errors.push(`broken link [[${ref}]] in ${owners.join(", ")}`);
   }
+}
+// Plans: the idea must exist; briefs written under an active plan name their workstream
+const activePlans = new Map();
+for (const p of pages.filter(p => p.rel.startsWith("wiki/plans/") && p.fm)) {
+  if (/^I-\d{3}$/.test(String(p.fm.idea)) && !byId.get(p.fm.idea)?.rel.startsWith("wiki/ideas/")) err(p, `unknown idea ${p.fm.idea}`);
+  if (p.fm.status === "active" && p.fm.started) activePlans.set(p.fm.idea, p);
+}
+for (const p of pages.filter(p => p.rel.startsWith("wiki/briefs/") && p.fm)) {
+  const plan = activePlans.get(p.fm.idea);
+  if (plan && p.fm.workstream == null && p.fm.created && Date.parse(p.fm.created) >= Date.parse(plan.fm.started))
+    warn(p, `brief of an idea with an active plan (${plan.fm.id}) has no workstream`);
 }
 // Orphan evidence: no idea, no brief link back
 for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {

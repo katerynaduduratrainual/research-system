@@ -2,10 +2,14 @@
 id: B-000
 question: ""
 idea: null            # I-### або null
+workstream: null      # demand | competition | complexity | economics | entry | null (наскрізний)
 status: draft         # draft | approved | running | collected | done
 created: 0000-00-00
 approved: null
-run_started: null
+run_stage: null       # queued | scouts | verify | librarian | digest | redteam | report | null
+run_started: null     # yyyy-mm-ddThh:mm
+run_finished: null    # yyyy-mm-ddThh:mm
+reviewed: null        # yyyy-mm-dd — гейт 2 пройдено
 budget:
   scouts: 0
   searches_per_scout: 12
@@ -38,6 +42,9 @@ budget:
 
 ## Критерії успіху
 Brief закрито, коли: …
+
+## Журнал прогону
+_(дописує /run на кожному кроці: `- <yyyy-mm-dd hh:mm> · <крок> · <що сталося>`)_
 
 ## Digest
 _(заповнює /run після збору доказів)_
