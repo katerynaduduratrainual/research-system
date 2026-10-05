@@ -111,8 +111,9 @@ Entities and their templates (copy the template, fill every field):
   lint → digest → topics → commit) run one at a time, because they write shared files.
 - While a run is going, show progress on request (stage, elapsed time, sub-questions
   covered), never partial findings: an unverified number is not evidence yet.
-- Models: scouts → sonnet, verifier → sonnet, librarian → haiku, analyst / red-team →
-  inherit (strongest available), writer → sonnet. Change in the agent files, not ad hoc.
+- Models: scouts, verifier, librarian, writer → opus (editor's decision 2026-10-05:
+  nothing below Opus under the hood); analyst / red-team → inherit (strongest
+  available). Change in the agent files, not ad hoc.
 
 ## Checkpoint format
 Gate 1 is asked where the brief or plan is written (`/research`, `/plan`). Gates 2 and 3

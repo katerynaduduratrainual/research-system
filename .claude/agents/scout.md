@@ -2,7 +2,7 @@
 name: scout
 description: Researches ONE sub-question from a brief. Searches the web, reads sources, writes evidence and source pages to the wiki, returns only IDs and one-line claims. Use for every evidence-gathering task; spawn one per sub-question, in parallel.
 tools: WebSearch, WebFetch, Read, Write, Glob, Grep, Bash
-model: sonnet
+model: opus
 maxTurns: 35
 color: blue
 ---

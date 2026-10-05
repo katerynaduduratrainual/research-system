@@ -2,7 +2,7 @@
 name: librarian
 description: Keeps the wiki consistent — deduplicates sources, fixes links and frontmatter, updates index.md and idea cards, curates open-questions.md, runs lint. Use after every /run, /ingest and /decide, and for /lint.
 tools: Read, Glob, Grep, Edit, Write, Bash
-model: haiku
+model: opus
 maxTurns: 30
 color: yellow
 ---

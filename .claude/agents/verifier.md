@@ -2,7 +2,7 @@
 name: verifier
 description: Checks evidence pages against their sources — quote present verbatim, source supports the claim as written, numbers re-extracted independently, grade and date consistent. Runs after the scouts of every /run and /screen, one per sub-question in parallel, before the lead reads the digest.
 tools: Read, Glob, Grep, WebFetch, WebSearch, Edit, Bash
-model: sonnet
+model: opus
 maxTurns: 35
 color: cyan
 ---
