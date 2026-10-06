@@ -1,7 +1,7 @@
 // Run: node scripts/tests/lint.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { makeWiki, run, day, stamp, domain, idea, brief, evidence, source, topic, report, critique, analysis } from "./helpers.mjs";
 
@@ -225,4 +225,52 @@ test("without --fix the missing back-link is only a warning", () => {
   );
   assert.ok(hasWarning(out, "does not link back"), out);
   assert.equal(code, 0);
+});
+
+// --- fix round 1 ---------------------------------------------------------------
+
+test("--fix never touches body lines that look like frontmatter keys", () => {
+  const root = makeWiki(
+    brief("B-001"), source(),
+    evidence("E-B001-1-01", { brief: "B-001", contradicts: ["E-B001-1-02"] }),
+  );
+  const rel = "wiki/evidence/E-B001-1-02.md";
+  const [, text] = evidence("E-B001-1-02", { brief: "B-001" });
+  const fmEnd = text.indexOf("\n---", 3);
+  const body = text.slice(0, fmEnd).replace(/^contradicts:.*\n?/m, "") + text.slice(fmEnd) + "contradicts: original body line\n";
+  writeFileSync(join(root, rel), body);
+  run("lint.mjs", root, ["--fix"]);
+  const out = readFileSync(join(root, rel), "utf8");
+  assert.match(out, /\ncontradicts: original body line\n/);
+  const head = out.slice(0, out.indexOf("\n---", 3));
+  assert.match(head, /^contradicts: \[E-B001-1-01\]$/m);
+});
+
+test("--fix keeps a trailing comment on a rewritten line", () => {
+  const root = makeWiki(domain("D-001"), brief("B-001", { domain: "D-001", layer: "demand" }));
+  const p = join(root, "wiki/domains/D-001-x.md");
+  writeFileSync(p, readFileSync(p, "utf8").replace("briefs: []", "briefs: []            # веде scripts/lint.mjs --fix"));
+  run("lint.mjs", root, ["--fix"]);
+  assert.match(readFileSync(p, "utf8"), /^briefs: \[B-001\] +# веде scripts\/lint\.mjs --fix$/m);
+});
+
+test("an unreadable critique date is an error", () => {
+  const { out } = lint(domain("D-001"), critique("D-001", { updated: "yesterday" }), report("R-001", "D-001", "domain"));
+  assert.ok(hasError(out, 'unreadable date on wiki/critique/D-001-critique.md: updated "yesterday"'), out);
+});
+
+test("a final report must target an idea and a domain report a domain", () => {
+  const { out } = lint(domain("D-001"), critique("D-001"), report("R-001", "D-001", "final"));
+  assert.ok(hasError(out, 'report type "final" does not match target D-001'), out);
+});
+
+test("--fix puts every back-link on a page two others contradict", () => {
+  const root = makeWiki(
+    brief("B-001"), source(),
+    evidence("E-B001-1-01", { brief: "B-001", contradicts: ["E-B001-1-03"] }),
+    evidence("E-B001-1-02", { brief: "B-001", contradicts: ["E-B001-1-03"] }),
+    evidence("E-B001-1-03", { brief: "B-001" }),
+  );
+  run("lint.mjs", root, ["--fix"]);
+  assert.match(readFileSync(join(root, "wiki/evidence/E-B001-1-03.md"), "utf8"), /^contradicts: \[E-B001-1-01, E-B001-1-02\]$/m);
 });

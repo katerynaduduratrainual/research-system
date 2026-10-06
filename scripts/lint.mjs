@@ -31,9 +31,16 @@ const same = (a, b) => JSON.stringify(sorted(a)) === JSON.stringify(sorted(b));
 // --- --fix: derived fields only ---------------------------------------------------
 const fixes = [];
 function setLine(p, key, line) {
-  const re = new RegExp(`^${key}:.*$`, "m");
-  const text = re.test(p.text) ? p.text.replace(re, line) : p.text.replace(/^(id:.*)$/m, `$1\n${line}`);
-  if (text === p.text) return;
+  // Operate on the frontmatter block only: from the opening --- to the next \n---.
+  const end = p.text.startsWith("---") ? p.text.indexOf("\n---", 3) : -1;
+  if (end < 0) return;
+  const head = p.text.slice(0, end), rest = p.text.slice(end);
+  const re = new RegExp(`^${key}:.*?(\\s+#.*)?$`, "m");
+  const newHead = re.test(head)
+    ? head.replace(re, (_, comment) => line + (comment ?? ""))
+    : head.replace(/^(id:.*)$/m, (m) => `${m}\n${line}`);
+  if (newHead === head) return;
+  const text = newHead + rest;
   writeFileSync(p.path, text);
   p.text = text;
   fixes.push(`${p.rel}: ${key}`);
@@ -92,13 +99,27 @@ function checkConfidence(p, keys) {
 function critiqueFresh(p) {
   const crit = critiques.find(c => c.fm.target === p.fm.target);
   if (!crit) return err(p, `no critique for ${p.fm.target} (wiki/critique/${p.fm.target}-critique.md)`);
-  const critDate = date(crit.fm.updated ?? crit.fm.created);
+  const bad = (page, field) => err(page, `unreadable date on ${page.rel}: ${field} "${page.fm[field]}"`);
+  const critField = crit.fm.updated != null ? "updated" : "created";
+  const critDate = date(crit.fm[critField]);
+  if (Number.isNaN(critDate)) return bad(crit, critField);
   if (p.fm.type === "domain") {
-    const newest = Math.max(-Infinity, ...briefs.filter(b => b.fm.domain === p.fm.target && b.fm.reviewed).map(b => date(b.fm.reviewed)));
+    const reviewed = briefs.filter(b => b.fm.domain === p.fm.target && b.fm.reviewed);
+    let newest = -Infinity;
+    for (const b of reviewed) {
+      const d = date(b.fm.reviewed);
+      if (Number.isNaN(d)) return bad(b, "reviewed");
+      newest = Math.max(newest, d);
+    }
     if (Number.isFinite(newest) && critDate < newest) err(p, `critique for ${p.fm.target} is older than the newest reviewed brief`);
   } else {
     const an = analyses.find(a => a.fm.idea === p.fm.target);
-    if (an && critDate < date(an.fm.updated ?? an.fm.created)) err(p, `critique for ${p.fm.target} is older than the analysis`);
+    if (an) {
+      const f = an.fm.updated != null ? "updated" : "created";
+      const d = date(an.fm[f]);
+      if (Number.isNaN(d)) return bad(an, f);
+      if (critDate < d) err(p, `critique for ${p.fm.target} is older than the analysis`);
+    }
   }
 }
 
@@ -213,6 +234,10 @@ for (const p of [...ideas, ...briefs, ...evidence]) {
 }
 for (const p of evidence) if (p.fm.brief != null && !isA(p.fm.brief, "briefs")) err(p, `unknown brief ${p.fm.brief}`);
 for (const p of [...critiques, ...reports]) if (p.fm.target && !byId.has(p.fm.target)) err(p, `unknown target ${p.fm.target}`);
+for (const p of reports) {
+  const dir = { domain: "domains", final: "ideas" }[p.fm.type];
+  if (dir && p.fm.target && byId.has(p.fm.target) && !isA(p.fm.target, dir)) err(p, `report type "${p.fm.type}" does not match target ${p.fm.target}`);
+}
 for (const p of analyses) if (p.fm.idea && !isA(p.fm.idea, "ideas")) err(p, `unknown idea ${p.fm.idea}`);
 // Orphan evidence: nothing links to it and it names no domain or idea
 for (const p of evidence) if (!referenced.has(p.fm.id) && p.fm.domain == null && p.fm.idea == null) warn(p, "orphan evidence (not linked from any page, no domain or idea)");
