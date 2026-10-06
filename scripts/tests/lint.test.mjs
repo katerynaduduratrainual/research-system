@@ -1,7 +1,9 @@
 // Run: node scripts/tests/lint.test.mjs
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { makeWiki, run, day, stamp, idea, brief, plan, NO_CONFIDENCE } from "./helpers.mjs";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { makeWiki, run, day, stamp, domain, idea, brief, evidence, source, topic, report, critique, analysis } from "./helpers.mjs";
 
 const lint = (...entries) => run("lint.mjs", makeWiki(...entries));
 const errors = out => out.split("\n").filter(l => l.startsWith("ERROR"));
@@ -9,25 +11,77 @@ const warnings = out => out.split("\n").filter(l => l.startsWith("WARNING"));
 const hasError = (out, text) => errors(out).some(l => l.includes(text));
 const hasWarning = (out, text) => warnings(out).some(l => l.includes(text));
 
-test("lint reads the wiki under RESEARCH_ROOT", () => {
-  const { out } = lint(idea("I-001"));
-  assert.match(out, /lint: 0 error\(s\), 0 warning\(s\), 1 page\(s\)/);
+test("an empty wiki passes", () => {
+  const { out, code } = lint();
+  assert.match(out, /lint: 0 error\(s\), 0 warning\(s\), 0 page\(s\)/);
+  assert.equal(code, 0);
+});
+
+// --- domains ----------------------------------------------------------------
+
+test("accepts a valid active domain", () => {
+  const { out, code } = lint(domain("D-001"));
+  assert.deepEqual(errors(out), []);
+  assert.equal(code, 0);
+});
+
+test("rejects an unknown phase", () => {
+  const { out } = lint(domain("D-001", { phase: "depth" }));
+  assert.ok(hasError(out, 'invalid phase "depth"'), out);
+});
+
+test("rejects a domain missing a layer in confidence", () => {
+  const { out } = lint(domain("D-001", { confidence: { fundamentals: null, demand: null, models: null, signals: null } }));
+  assert.ok(hasError(out, "confidence missing entry"), out);
+});
+
+test("rejects an active domain without owner", () => {
+  const { out } = lint(domain("D-001", { owner: "" }));
+  assert.ok(hasError(out, "active domain without owner"), out);
+});
+
+test("rejects a domain whose file name does not start with its id", () => {
+  const [, text] = domain("D-001");
+  const { out } = lint(["wiki/domains/local-llm.md", text]);
+  assert.ok(hasError(out, "file name must start with D-001-"), out);
+});
+
+// --- ideas ------------------------------------------------------------------
+
+test("accepts an idea under an existing domain", () => {
+  const { out, code } = lint(domain("D-001"), idea("I-001", { domain: "D-001" }));
+  assert.deepEqual(errors(out), []);
+  assert.equal(code, 0);
+});
+
+test("rejects an unknown idea stage", () => {
+  const { out } = lint(idea("I-001", { stage: "screening" }));
+  assert.ok(hasError(out, 'invalid stage "screening"'), out);
+});
+
+test("rejects an idea pointing at a missing domain", () => {
+  const { out } = lint(idea("I-001", { domain: "D-009" }));
+  assert.ok(hasError(out, "unknown domain D-009"), out);
 });
 
 // --- briefs -----------------------------------------------------------------
 
-test("accepts a running brief with a run stage, a workstream and a timestamp", () => {
-  const { out, code } = lint(brief("B-001", {
-    status: "running", run_stage: "verify", workstream: "demand", run_started: stamp(10),
+test("accepts a running domain brief with a layer", () => {
+  const { out, code } = lint(domain("D-001"), brief("B-001", {
+    domain: "D-001", layer: "fundamentals", status: "running", run_stage: "verify", run_started: stamp(10),
   }));
   assert.deepEqual(errors(out), []);
   assert.equal(code, 0);
 });
 
-test("rejects an unknown run_stage", () => {
-  const { out, code } = lint(brief("B-001", { status: "running", run_stage: "bogus" }));
-  assert.ok(hasError(out, 'invalid run_stage "bogus"'), out);
-  assert.equal(code, 1);
+test("rejects a domain layer on an idea brief", () => {
+  const { out } = lint(idea("I-001"), brief("B-001", { idea: "I-001", layer: "fundamentals" }));
+  assert.ok(hasError(out, 'invalid layer "fundamentals" for an idea brief'), out);
+});
+
+test("rejects the retired run stages", () => {
+  const { out } = lint(brief("B-001", { status: "running", run_stage: "librarian" }));
+  assert.ok(hasError(out, 'invalid run_stage "librarian"'), out);
 });
 
 test("rejects a running brief without run_stage", () => {
@@ -35,9 +89,9 @@ test("rejects a running brief without run_stage", () => {
   assert.ok(hasError(out, "running brief without run_stage"), out);
 });
 
-test("rejects an unknown workstream", () => {
-  const { out } = lint(brief("B-001", { workstream: "sales" }));
-  assert.ok(hasError(out, 'invalid workstream "sales"'), out);
+test("rejects an approved brief without author", () => {
+  const { out } = lint(brief("B-001", { status: "approved", author: "" }));
+  assert.ok(hasError(out, "brief past gate 1 without author"), out);
 });
 
 test("warns when a collected brief has waited a week for gate 2", () => {
@@ -45,111 +99,130 @@ test("warns when a collected brief has waited a week for gate 2", () => {
   assert.ok(hasWarning(out, "awaiting gate 2 for 7+ days"), out);
 });
 
-test("does not warn about gate 2 once the brief is reviewed", () => {
-  const { out } = lint(brief("B-001", {
-    status: "collected", run_finished: `${day(-8)}T10:00`, reviewed: day(-7),
-  }));
-  assert.ok(!hasWarning(out, "awaiting gate 2"), out);
+test("does not warn about gate 2 once reviewed or while under a week", () => {
+  assert.ok(!hasWarning(lint(brief("B-001", { status: "collected", run_finished: `${day(-8)}T10:00`, reviewed: day(-7) })).out, "awaiting gate 2"));
+  assert.ok(!hasWarning(lint(brief("B-001", { status: "collected", run_finished: `${day(-2)}T10:00` })).out, "awaiting gate 2"));
 });
 
-test("does not warn about gate 2 while the wait is under a week", () => {
-  const { out } = lint(brief("B-001", { status: "collected", run_finished: `${day(-2)}T10:00` }));
-  assert.ok(!hasWarning(out, "awaiting gate 2"), out);
-});
+// --- evidence ---------------------------------------------------------------
 
-// --- plans ------------------------------------------------------------------
-
-test("accepts a valid active plan", () => {
-  const { out, code } = lint(idea("I-001"), plan("I-001", {
-    checkpoint: "ready", confidence: { ...NO_CONFIDENCE, demand: "medium" },
-  }));
+test("accepts evidence that names only its brief", () => {
+  const { out, code } = lint(brief("B-001"), source(), evidence("E-B001-1-01", { brief: "B-001" }));
   assert.deepEqual(errors(out), []);
   assert.equal(code, 0);
 });
 
-test("accepts a draft plan without dates", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", {
-    status: "draft", started: null, target_decision: null,
-  }));
+test("rejects evidence with neither brief nor domain nor idea", () => {
+  const { out } = lint(source(), evidence("E-ING-20261006-01"));
+  assert.ok(hasError(out, "evidence without brief, domain or idea"), out);
+});
+
+test("rejects an evidence id outside the three patterns", () => {
+  const { out } = lint(brief("B-001"), source(), evidence("E-B001-R-01", { brief: "B-001" }));
+  assert.ok(hasError(out, 'invalid evidence id "E-B001-R-01"'), out);
+});
+
+test("accepts critic evidence on a domain", () => {
+  const { out, code } = lint(domain("D-001"), source(), evidence("E-D001-C-01", { domain: "D-001" }));
   assert.deepEqual(errors(out), []);
+  assert.equal(code, 0);
 });
 
-test("rejects a plan whose id does not match its idea", () => {
-  const { out } = lint(idea("I-001"), idea("I-009"), plan("I-009", { idea: "I-001" }));
-  assert.ok(hasError(out, "plan id must be P-I-001"), out);
+// --- reports and the critique rule -------------------------------------------
+
+test("a primer needs no critique", () => {
+  const { out, code } = lint(domain("D-001"), report("R-001", "D-001", "primer"));
+  assert.deepEqual(errors(out), []);
+  assert.equal(code, 0);
 });
 
-test("rejects a plan for an idea that does not exist", () => {
-  const { out } = lint(plan("I-404"));
-  assert.ok(hasError(out, "unknown idea I-404"), out);
+test("a domain report without a critique is an error", () => {
+  const { out } = lint(domain("D-001"), report("R-001", "D-001", "domain"));
+  assert.ok(hasError(out, "no critique for D-001"), out);
 });
 
-test("rejects an unknown plan status", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", { status: "open" }));
-  assert.ok(hasError(out, 'invalid status "open"'), out);
+test("a domain report whose critique is older than the newest reviewed brief is an error", () => {
+  const { out } = lint(
+    domain("D-001"),
+    brief("B-001", { domain: "D-001", layer: "demand", status: "collected", reviewed: day(0) }),
+    critique("D-001", { created: day(-2), updated: day(-2) }),
+    report("R-001", "D-001", "domain"),
+  );
+  assert.ok(hasError(out, "older than the newest reviewed brief"), out);
 });
 
-test("rejects an unknown plan phase", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", { phase: "explore" }));
-  assert.ok(hasError(out, 'invalid phase "explore"'), out);
+test("a domain report with a fresh critique passes", () => {
+  const { out, code } = lint(
+    domain("D-001"),
+    brief("B-001", { domain: "D-001", layer: "demand", status: "collected", reviewed: day(-1) }),
+    critique("D-001"),
+    report("R-001", "D-001", "domain"),
+  );
+  assert.deepEqual(errors(out), []);
+  assert.equal(code, 0);
 });
 
-test("rejects an unknown plan checkpoint", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", { checkpoint: "done" }));
-  assert.ok(hasError(out, 'invalid checkpoint "done"'), out);
+test("a final report whose critique is older than the analysis is an error", () => {
+  const { out } = lint(
+    idea("I-001"),
+    analysis("I-001", { updated: day(0) }),
+    critique("I-001", { created: day(-1), updated: day(-1) }),
+    report("R-001", "I-001", "final"),
+  );
+  assert.ok(hasError(out, "older than the analysis"), out);
 });
 
-test("rejects a confidence map that lacks a workstream", () => {
-  const { economics, ...four } = NO_CONFIDENCE;
-  const { out } = lint(idea("I-001"), plan("I-001", { confidence: four }));
-  assert.ok(hasError(out, "confidence missing economics"), out);
+test("rejects an unknown report type and a report on a missing target", () => {
+  const { out } = lint(domain("D-001"), report("R-001", "D-001", "screen"), report("R-002", "I-009", "primer"));
+  assert.ok(hasError(out, 'invalid type "screen"'), out);
+  assert.ok(hasError(out, "unknown target I-009"), out);
 });
 
-test("rejects an invalid confidence value", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", {
-    confidence: { ...NO_CONFIDENCE, demand: "sure" },
-  }));
-  assert.ok(hasError(out, 'invalid confidence.demand "sure"'), out);
+// --- ids and links ------------------------------------------------------------
+
+test("rejects duplicate ids and broken links", () => {
+  const { out } = lint(domain("D-001"), ["wiki/domains/D-001-y.md", domain("D-001")[1]], topic("T-x", { domains: ["D-007"] }));
+  assert.ok(hasError(out, "duplicate id D-001"), out);
+  assert.ok(hasError(out, "broken link [[D-007]]"), out);
 });
 
-test("rejects an active plan without a start date", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", { started: null }));
-  assert.ok(hasError(out, "active plan without started"), out);
+// --- fix --------------------------------------------------------------------
+
+test("--fix fills the derived lists on a domain and an idea", () => {
+  const root = makeWiki(
+    domain("D-001"), idea("I-001", { domain: "D-001" }),
+    brief("B-001", { domain: "D-001", layer: "demand" }), brief("B-002", { idea: "I-001", layer: "economics" }),
+    report("R-001", "D-001", "primer"),
+  );
+  const { out, code } = run("lint.mjs", root, ["--fix"]);
+  assert.equal(code, 0, out);
+  const d = readFileSync(join(root, "wiki/domains/D-001-x.md"), "utf8");
+  assert.match(d, /^briefs: \[B-001\]$/m);
+  assert.match(d, /^candidates: \[I-001\]$/m);
+  assert.match(d, /^reports: \[R-001\]$/m);
+  assert.match(readFileSync(join(root, "wiki/ideas/I-001-x.md"), "utf8"), /^briefs: \[B-002\]$/m);
+  assert.match(out, /FIXED {3}wiki\/domains\/D-001-x.md: briefs/);
 });
 
-test("rejects a paused plan without a target decision date", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", { status: "paused", target_decision: null }));
-  assert.ok(hasError(out, "paused plan without target_decision"), out);
+test("--fix adds the missing contradicts back-link and marks stale topics", () => {
+  const root = makeWiki(
+    brief("B-001"), source(),
+    evidence("E-B001-1-01", { brief: "B-001", contradicts: ["E-B001-1-02"] }),
+    evidence("E-B001-1-02", { brief: "B-001" }),
+    topic("T-old", { updated: day(-61) }),
+  );
+  const { out } = run("lint.mjs", root, ["--fix"]);
+  assert.match(readFileSync(join(root, "wiki/evidence/E-B001-1-02.md"), "utf8"), /^contradicts: \[E-B001-1-01\]$/m);
+  assert.match(readFileSync(join(root, "wiki/topics/T-old.md"), "utf8"), /^status: stale$/m);
+  assert.ok(!hasWarning(out, "does not link back"), out);
 });
 
-test("flags a plan that lists a brief which does not exist", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", { briefs: ["B-404"] }));
-  assert.ok(hasError(out, "broken link [[B-404]]"), out);
-});
-
-test("warns when an active plan was not updated for two weeks", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", { updated: day(-15) }));
-  assert.ok(hasWarning(out, "active plan not updated for 14+ days"), out);
-});
-
-test("does not warn about a stale plan once it is closed", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", { status: "closed", updated: day(-40) }));
-  assert.ok(!hasWarning(out, "not updated for 14+ days"), out);
-});
-
-test("warns about a brief without workstream created under an active plan", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", { started: day(-3) }),
-    brief("B-001", { idea: "I-001", created: day(-1) }));
-  assert.ok(hasWarning(out, "has no workstream"), out);
-});
-
-test("does not ask for a workstream on briefs older than the plan", () => {
-  const { out } = lint(idea("I-001"), plan("I-001", { started: day(-3) }),
-    brief("B-001", { idea: "I-001", created: day(-10) }));
-  assert.ok(!hasWarning(out, "has no workstream"), out);
-});
-
-test("accepts the checked run_stage (stop b: collected and verified, waiting for the editor)", () => {
-  const { out } = lint(brief("B-001", { status: "running", run_stage: "checked", run_started: stamp(10) }));
-  assert.ok(!hasError(out, "invalid run_stage"), out);
+test("without --fix the missing back-link is only a warning", () => {
+  const { out, code } = lint(
+    brief("B-001"), source(),
+    evidence("E-B001-1-01", { brief: "B-001", contradicts: ["E-B001-1-02"] }),
+    evidence("E-B001-1-02", { brief: "B-001" }),
+  );
+  assert.ok(hasWarning(out, "does not link back"), out);
+  assert.equal(code, 0);
 });

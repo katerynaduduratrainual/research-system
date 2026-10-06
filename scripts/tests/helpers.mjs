@@ -19,9 +19,10 @@ export function makeWiki(...entries) {
   return root;
 }
 
-export function run(script, root, args = []) {
+// Runs scripts/<script> with RESEARCH_ROOT=root; `input` is piped to stdin (hooks).
+export function run(script, root, args = [], input = "") {
   const r = spawnSync(process.execPath, [join(SCRIPTS, script), ...args], {
-    env: { ...process.env, RESEARCH_ROOT: root }, encoding: "utf8",
+    env: { ...process.env, RESEARCH_ROOT: root }, encoding: "utf8", input,
   });
   return { code: r.status, out: r.stdout + r.stderr };
 }
@@ -52,30 +53,52 @@ export function page(fm, body = "") {
   return `---\n${lines.join("\n")}\n---\n${body}\n`;
 }
 
-export const idea = (id, extra = {}) => [`wiki/ideas/${id}-x.md`, page({
-  id, title: `Idea ${id}`, stage: "screening", decision: null, decided: null,
-  briefs: [], reports: [], ...extra,
-})];
+export const NO_LAYERS = { fundamentals: null, demand: null, models: null, signals: null, entry: null };
+export const NO_WORKSTREAMS = { demand: null, competition: null, complexity: null, economics: null, entry: null };
+
+export const domain = (id, extra = {}, body = "") => [`wiki/domains/${id}-x.md`, page({
+  id, title: `Domain ${id}`, owner: "editor", author: "editor", status: "active", phase: "intro",
+  checkpoint: null, created: day(-3), updated: day(0), target: null,
+  confidence: NO_LAYERS, briefs: [], candidates: [], reports: [], ...extra,
+}, body)];
+
+export const idea = (id, extra = {}, body = "") => [`wiki/ideas/${id}-x.md`, page({
+  id, title: `Idea ${id}`, domain: null, owner: "editor", author: "editor", stage: "active",
+  decision: null, checkpoint: null, created: day(-3), updated: day(0), decided: null,
+  target_decision: null, confidence: NO_WORKSTREAMS, briefs: [], reports: [], total: null, ...extra,
+}, body)];
 
 export const brief = (id, extra = {}, body = "") => [`wiki/briefs/${id}-x.md`, page({
-  id, question: `Question ${id}`, idea: null, workstream: null, status: "draft",
-  created: day(0), run_stage: null, run_started: null, run_finished: null,
-  reviewed: null, ...extra,
+  id, question: `Question ${id}`, domain: null, idea: null, layer: null, author: "editor",
+  status: "draft", created: day(0), approved: null, run_stage: null, run_started: null,
+  run_finished: null, reviewed: null, ...extra,
 }, body)];
 
-export const NO_CONFIDENCE = { demand: null, competition: null, complexity: null, economics: null, entry: null };
+export const evidence = (id, extra = {}) => [`wiki/evidence/${id}.md`, page({
+  id, claim: "Claim with 10 units", type: "fact", source: "S-00000000", source_grade: "B",
+  confidence: "low", date_of_info: day(0), brief: null, domain: null, idea: null,
+  contradicts: [], created: day(0), verified: null, verification: null, ...extra,
+}, "\n## Цитата\n> quote\n")];
 
-export const plan = (ideaId, extra = {}, body = "") => [`wiki/plans/P-${ideaId}.md`, page({
-  id: `P-${ideaId}`, idea: ideaId, status: "active", phase: "map", checkpoint: null,
-  started: day(-3), target_decision: day(60), updated: day(0),
-  confidence: NO_CONFIDENCE, briefs: [], ...extra,
-}, body)];
-
-export const report = (id, target, extra = {}) => [`wiki/reports/${id}-x.md`, page({
-  id, target, type: "screen", created: day(0), confidence: "low", ...extra,
+export const source = (id = "S-00000000", extra = {}) => [`wiki/sources/${id}.md`, page({
+  id, url: `https://example.com/${id}`, title: `Source ${id}`, publisher: "x", published: "2026",
+  accessed: day(0), accessed_via: "direct", type: "primary", grade: "B", raw: null, ...extra,
 })];
 
-export const evidence = (id, briefId, extra = {}) => [`wiki/evidence/${id}.md`, page({
-  id, claim: "Claim with 10 units", source: "S-00000000", type: "fact",
-  confidence: "low", brief: briefId, date_of_info: day(0), verification: null, ...extra,
+export const topic = (id, extra = {}, body = "") => [`wiki/topics/${id}.md`, page({
+  id, title: `Topic ${id}`, updated: day(0), briefs: [], domains: [], status: "active", ...extra,
+}, body)];
+
+export const report = (id, target, type = "primer", extra = {}, body = "") => [`wiki/reports/${id}-x.md`, page({
+  id, target, type, author: "writer", created: day(0), confidence: "low",
+  confidence_set_by: "grade", total_score: null, briefs: [], ...extra,
+}, body)];
+
+export const critique = (target, extra = {}) => [`wiki/critique/${target}-critique.md`, page({
+  target, author: "critic", created: day(0), updated: day(0),
+  spotcheck: { ok: 0, inexact: 0, failed: 0 }, ...extra,
+})];
+
+export const analysis = (ideaId, extra = {}) => [`wiki/analysis/${ideaId}-analysis.md`, page({
+  idea: ideaId, brief: [], created: day(0), updated: day(0), author: "writer", ...extra,
 })];

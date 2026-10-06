@@ -72,3 +72,6 @@ export function normaliseUrl(u) {
     return s.replace(/^https?:\/\//, "");
   } catch { return u.trim().toLowerCase(); }
 }
+
+// Pages of one wiki folder that have frontmatter, e.g. under(pages, "domains").
+export const under = (pages, dir) => pages.filter(p => p.rel.startsWith(`wiki/${dir}/`) && p.fm);

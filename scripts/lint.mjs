@@ -1,46 +1,134 @@
 #!/usr/bin/env node
 // Wiki integrity check. Exit 1 on errors. Warnings never fail.
-import { loadWiki, normaliseUrl } from "./_lib.mjs";
+// `--fix` first rewrites derived fields (briefs / candidates / reports lists on domains
+// and ideas, stale topics, contradicts back-links), then checks the result.
+import { writeFileSync } from "node:fs";
+import { loadWiki, normaliseUrl, under } from "./_lib.mjs";
 
-const pages = loadWiki();
-const errors = [], warnings = [];
-const err = (p, m) => errors.push(`${p.rel}: ${m}`);
-const warn = (p, m) => warnings.push(`${p.rel}: ${m}`);
-
-const STAGES = ["inbox", "screening", "deep-dive", "validation", "parked", "killed"];
-const BRIEF_STATUS = ["draft", "approved", "running", "collected", "done"];
+const FIX = process.argv.includes("--fix");
+const DOMAIN_STATUS = ["active", "paused", "closed"];
+const DOMAIN_PHASE = ["intro", "map", "focus", "candidates"];
+const CHECKPOINT = ["running", "ready"];
+const LAYERS = ["fundamentals", "demand", "models", "signals", "entry"];
+const WORKSTREAMS = ["demand", "competition", "complexity", "economics", "entry"];
+const IDEA_STAGE = ["active", "validation", "parked", "killed"];
+const DECISION = ["advance", "park", "kill"];
+const BRIEF_STATUS = ["draft", "approved", "running", "collected"];
+const RUN_STAGE = ["queued", "scouts", "verify", "checked", "digest"];
+const REPORT_TYPE = ["primer", "domain", "final"];
 const GRADES = ["A", "B", "C", "D"];
 const E_TYPES = ["fact", "statistic", "estimate", "opinion", "anecdote", "absence"];
 const ACCESS = ["direct", "archive", "secondary", "blocked"];
-const blockedSources = new Set();
 const CONF = ["high", "medium", "low"];
 const VERIF = ["ok", "inexact", "failed", "unreachable"];
 const TOPIC_STATUS = ["active", "stale"];
-const RUN_STAGE = ["queued", "scouts", "verify", "checked", "librarian", "digest", "redteam", "report"];
-const WORKSTREAMS = ["demand", "competition", "complexity", "economics", "entry"];
-const PLAN_STATUS = ["draft", "active", "paused", "closed"];
-const PLAN_PHASE = ["map", "depth", "synthesis"];
-const CHECKPOINT = ["running", "ready"];
+const E_ID = /^E-(B\d{3}-\d+-\d{2}|[DI]\d{3}-C-\d{2}|ING-\d{8}-\d{2})$/;
 const DAY = 86400e3;
-const briefStatus = new Map();
+const date = v => (v ? Date.parse(String(v).slice(0, 10)) : NaN);
+const sorted = a => [...new Set(a ?? [])].sort();
+const same = (a, b) => JSON.stringify(sorted(a)) === JSON.stringify(sorted(b));
 
-const byId = new Map();
-const referenced = new Set();
-const sourceUrls = new Map();
+// --- --fix: derived fields only ---------------------------------------------------
+const fixes = [];
+function setLine(p, key, line) {
+  const re = new RegExp(`^${key}:.*$`, "m");
+  const text = re.test(p.text) ? p.text.replace(re, line) : p.text.replace(/^(id:.*)$/m, `$1\n${line}`);
+  if (text === p.text) return;
+  writeFileSync(p.path, text);
+  p.text = text;
+  fixes.push(`${p.rel}: ${key}`);
+}
+function setList(p, key, arr) {
+  p.fm[key] = sorted(arr);
+  setLine(p, key, `${key}: [${p.fm[key].join(", ")}]`);
+}
+function applyFixes(pages) {
+  const domains = under(pages, "domains"), ideas = under(pages, "ideas"), briefs = under(pages, "briefs");
+  const reports = under(pages, "reports"), topics = under(pages, "topics"), evidence = under(pages, "evidence");
+  const ids = (list, pick) => list.filter(pick).map(p => p.fm.id);
+  for (const d of domains) {
+    const want = {
+      briefs: ids(briefs, b => b.fm.domain === d.fm.id),
+      candidates: ids(ideas, i => i.fm.domain === d.fm.id),
+      reports: ids(reports, r => r.fm.target === d.fm.id),
+    };
+    for (const [k, v] of Object.entries(want)) if (!same(d.fm[k], v)) setList(d, k, v);
+  }
+  for (const i of ideas) {
+    const want = { briefs: ids(briefs, b => b.fm.idea === i.fm.id), reports: ids(reports, r => r.fm.target === i.fm.id) };
+    for (const [k, v] of Object.entries(want)) if (!same(i.fm[k], v)) setList(i, k, v);
+  }
+  for (const t of topics) {
+    if (t.fm.status === "active" && t.fm.updated && Date.now() - date(t.fm.updated) > 60 * DAY) setLine(t, "status", "status: stale");
+  }
+  const byId = new Map(evidence.map(e => [e.fm.id, e]));
+  for (const e of evidence) for (const c of e.fm.contradicts ?? []) {
+    const other = byId.get(c);
+    if (other && !(other.fm.contradicts ?? []).includes(e.fm.id)) setList(other, "contradicts", [...(other.fm.contradicts ?? []), e.fm.id]);
+  }
+}
+
+let pages = loadWiki();
+if (FIX) { applyFixes(pages); pages = loadWiki(); }
+
+// --- checks -------------------------------------------------------------------------
+const errors = [], warnings = [];
+const err = (p, m) => errors.push(`${p.rel}: ${m}`);
+const warn = (p, m) => warnings.push(`${p.rel}: ${m}`);
+const domains = under(pages, "domains"), ideas = under(pages, "ideas"), briefs = under(pages, "briefs");
+const evidence = under(pages, "evidence"), sources = under(pages, "sources"), topics = under(pages, "topics");
+const reports = under(pages, "reports"), critiques = under(pages, "critique"), analyses = under(pages, "analysis");
+const byId = new Map(), referenced = new Set(), sourceUrls = new Map(), blockedSources = new Set(), briefStatus = new Map();
+const isA = (id, dir) => byId.get(id)?.rel.startsWith(`wiki/${dir}/`) === true;
+
+function checkConfidence(p, keys) {
+  for (const k of keys) {
+    const c = p.fm.confidence?.[k];
+    if (c === undefined) err(p, `confidence missing ${k}`);
+    else if (c !== null && !CONF.includes(c)) err(p, `invalid confidence.${k} "${c}"`);
+  }
+}
+// Rule 4: a domain or final report needs a critique newer than the material it covers.
+function critiqueFresh(p) {
+  const crit = critiques.find(c => c.fm.target === p.fm.target);
+  if (!crit) return err(p, `no critique for ${p.fm.target} (wiki/critique/${p.fm.target}-critique.md)`);
+  const critDate = date(crit.fm.updated ?? crit.fm.created);
+  if (p.fm.type === "domain") {
+    const newest = Math.max(-Infinity, ...briefs.filter(b => b.fm.domain === p.fm.target && b.fm.reviewed).map(b => date(b.fm.reviewed)));
+    if (Number.isFinite(newest) && critDate < newest) err(p, `critique for ${p.fm.target} is older than the newest reviewed brief`);
+  } else {
+    const an = analyses.find(a => a.fm.idea === p.fm.target);
+    if (an && critDate < date(an.fm.updated ?? an.fm.created)) err(p, `critique for ${p.fm.target} is older than the analysis`);
+  }
+}
 
 for (const p of pages) {
   if (/wiki\/(index|open-questions)\.md$/.test(p.rel)) continue;
   if (!p.fm) { err(p, "no frontmatter"); continue; }
-  const id = p.fm.id ?? p.fm.target ?? p.fm.idea;
   if (p.fm.id) {
     if (byId.has(p.fm.id)) err(p, `duplicate id ${p.fm.id} (also ${byId.get(p.fm.id).rel})`);
     byId.set(p.fm.id, p);
   }
   for (const m of p.text.matchAll(/\[\[([A-Z]-[A-Za-z0-9-]+)\]\]/g)) referenced.add(m[1]);
 
-  if (p.rel.startsWith("wiki/ideas/")) {
-    if (!STAGES.includes(p.fm.stage)) err(p, `invalid stage "${p.fm.stage}"`);
+  if (p.rel.startsWith("wiki/domains/")) {
+    if (!/^D-\d{3}$/.test(String(p.fm.id))) err(p, `invalid domain id "${p.fm.id}"`);
+    else if (!p.rel.startsWith(`wiki/domains/${p.fm.id}-`)) err(p, `file name must start with ${p.fm.id}-`);
     if (!p.fm.title) err(p, "missing title");
+    if (!DOMAIN_STATUS.includes(p.fm.status)) err(p, `invalid status "${p.fm.status}"`);
+    if (!DOMAIN_PHASE.includes(p.fm.phase)) err(p, `invalid phase "${p.fm.phase}"`);
+    if (p.fm.checkpoint != null && !CHECKPOINT.includes(p.fm.checkpoint)) err(p, `invalid checkpoint "${p.fm.checkpoint}"`);
+    checkConfidence(p, LAYERS);
+    if (p.fm.status === "active" && !p.fm.owner) err(p, "active domain without owner");
+    if (p.fm.status === "active" && p.fm.updated && Date.now() - date(p.fm.updated) > 14 * DAY) warn(p, "active domain not updated for 14+ days");
+  }
+  if (p.rel.startsWith("wiki/ideas/")) {
+    if (!/^I-\d{3}$/.test(String(p.fm.id))) err(p, `invalid idea id "${p.fm.id}"`);
+    if (!p.fm.title) err(p, "missing title");
+    if (!IDEA_STAGE.includes(p.fm.stage)) err(p, `invalid stage "${p.fm.stage}"`);
+    if (p.fm.decision != null && !DECISION.includes(p.fm.decision)) err(p, `invalid decision "${p.fm.decision}"`);
+    if (p.fm.checkpoint != null && !CHECKPOINT.includes(p.fm.checkpoint)) err(p, `invalid checkpoint "${p.fm.checkpoint}"`);
+    checkConfidence(p, WORKSTREAMS);
   }
   if (p.rel.startsWith("wiki/briefs/")) {
     if (!BRIEF_STATUS.includes(p.fm.status)) err(p, `invalid status "${p.fm.status}"`);
@@ -48,30 +136,20 @@ for (const p of pages) {
     if (p.fm.id) briefStatus.set(p.fm.id, p.fm.status);
     if (p.fm.run_stage != null && !RUN_STAGE.includes(p.fm.run_stage)) err(p, `invalid run_stage "${p.fm.run_stage}"`);
     if (p.fm.status === "running" && p.fm.run_stage == null) err(p, "running brief without run_stage");
-    if (p.fm.workstream != null && !WORKSTREAMS.includes(p.fm.workstream)) err(p, `invalid workstream "${p.fm.workstream}"`);
+    if (p.fm.status !== "draft" && !p.fm.author) err(p, "brief past gate 1 without author");
+    if (p.fm.layer != null) {
+      const allowed = p.fm.idea != null ? WORKSTREAMS : LAYERS;
+      if (!allowed.includes(p.fm.layer)) err(p, `invalid layer "${p.fm.layer}" for ${p.fm.idea != null ? "an idea" : "a domain"} brief`);
+    } else if (p.fm.domain != null || p.fm.idea != null) warn(p, "brief under a domain or idea without layer");
     const since = p.fm.run_finished ?? p.fm.run_started;
-    if (p.fm.status === "collected" && p.fm.reviewed == null && p.fm.run_stage == null && since && Date.now() - Date.parse(since) > 7 * DAY)
+    if (p.fm.status === "collected" && p.fm.reviewed == null && p.fm.run_stage == null && since && Date.now() - date(since) > 7 * DAY)
       warn(p, `awaiting gate 2 for 7+ days: /review ${p.fm.id}`);
   }
-  if (p.rel.startsWith("wiki/plans/")) {
-    const { status, phase, checkpoint, idea } = p.fm;
-    if (!/^I-\d{3}$/.test(String(idea))) err(p, `invalid idea "${idea}"`);
-    else if (p.fm.id !== `P-${idea}`) err(p, `plan id must be P-${idea}`);
-    if (!PLAN_STATUS.includes(status)) err(p, `invalid status "${status}"`);
-    if (!PLAN_PHASE.includes(phase)) err(p, `invalid phase "${phase}"`);
-    if (checkpoint != null && !CHECKPOINT.includes(checkpoint)) err(p, `invalid checkpoint "${checkpoint}"`);
-    for (const w of WORKSTREAMS) {
-      const c = p.fm.confidence?.[w];
-      if (c === undefined) err(p, `confidence missing ${w}`);
-      else if (c !== null && !CONF.includes(c)) err(p, `invalid confidence.${w} "${c}"`);
-    }
-    if (["active", "paused"].includes(status)) for (const k of ["started", "target_decision"]) if (!p.fm[k]) err(p, `${status} plan without ${k}`);
-    if (status === "active" && p.fm.updated && Date.now() - Date.parse(p.fm.updated) > 14 * DAY) warn(p, "active plan not updated for 14+ days");
-    for (const b of p.fm.briefs ?? []) referenced.add(b);
-  }
   if (p.rel.startsWith("wiki/evidence/")) {
-    const required = p.fm.type === "absence" ? ["claim", "type", "confidence", "brief"] : ["claim", "source", "type", "confidence", "brief"];
+    const required = p.fm.type === "absence" ? ["claim", "type", "confidence"] : ["claim", "source", "type", "confidence"];
     for (const k of required) if (p.fm[k] == null || p.fm[k] === "") err(p, `missing ${k}`);
+    if (!E_ID.test(String(p.fm.id))) err(p, `invalid evidence id "${p.fm.id}"`);
+    if (p.fm.brief == null && p.fm.domain == null && p.fm.idea == null) err(p, "evidence without brief, domain or idea");
     if (p.fm.type === "absence" && !/##\s*Метод пошуку/.test(p.body)) err(p, "absence without ## Метод пошуку");
     if (!E_TYPES.includes(p.fm.type)) err(p, `invalid type "${p.fm.type}"`);
     if (!CONF.includes(p.fm.confidence)) err(p, `invalid confidence "${p.fm.confidence}"`);
@@ -100,63 +178,64 @@ for (const p of pages) {
     if (!p.fm.title) err(p, "missing title");
     if (!p.fm.updated) err(p, "missing updated");
     if (!TOPIC_STATUS.includes(p.fm.status)) err(p, `invalid status "${p.fm.status}"`);
-    else if (p.fm.updated && Date.now() - Date.parse(p.fm.updated) > 60 * 86400e3 && p.fm.status !== "stale") warn(p, "not updated for 60+ days; mark status: stale");
+    else if (p.fm.updated && Date.now() - date(p.fm.updated) > 60 * DAY && p.fm.status !== "stale") warn(p, "not updated for 60+ days; lint --fix marks it stale");
+    for (const d of p.fm.domains ?? []) referenced.add(d);
+  }
+  if (p.rel.startsWith("wiki/critique/")) {
+    if (!p.fm.target) err(p, "missing target");
+    else if (!p.rel.endsWith(`/${p.fm.target}-critique.md`)) err(p, `file name must be ${p.fm.target}-critique.md`);
+    if (!p.fm.created) err(p, "missing created");
+  }
+  if (p.rel.startsWith("wiki/analysis/")) {
+    if (!p.fm.idea) err(p, "missing idea");
+    else if (!p.rel.endsWith(`/${p.fm.idea}-analysis.md`)) err(p, `file name must be ${p.fm.idea}-analysis.md`);
   }
   if (p.rel.startsWith("wiki/reports/")) {
     if (!p.fm.target) err(p, "missing target");
+    if (!REPORT_TYPE.includes(p.fm.type)) err(p, `invalid type "${p.fm.type}"`);
     if (!CONF.includes(p.fm.confidence)) err(p, `invalid confidence "${p.fm.confidence}"`);
+    if (p.fm.target && p.fm.type !== "primer" && REPORT_TYPE.includes(p.fm.type)) critiqueFresh(p);
     const untagged = p.body.split("\n").filter(l => /^[^#|>\-\s].{40,}$/.test(l) && !/\[\[E-/.test(l) && !/доказів не знайдено/i.test(l));
     if (untagged.length) warn(p, `${untagged.length} long sentence(s) without evidence tag`);
   }
 }
 
-// Broken links
+// --- cross-page checks --------------------------------------------------------------
 for (const ref of referenced) {
   if (!byId.has(ref)) {
-    const owners = pages.filter(p => p.text.includes(`[[${ref}]]`) || p.fm?.source === ref || (p.fm?.contradicts ?? []).includes(ref)).map(p => p.rel);
+    const owners = pages.filter(p => p.text.includes(`[[${ref}]]`) || p.fm?.source === ref || (p.fm?.contradicts ?? []).includes(ref) || (p.fm?.domains ?? []).includes(ref)).map(p => p.rel);
     errors.push(`broken link [[${ref}]] in ${owners.join(", ")}`);
   }
 }
-// Plans: the idea must exist; briefs written under an active plan name their workstream
-const activePlans = new Map();
-for (const p of pages.filter(p => p.rel.startsWith("wiki/plans/") && p.fm)) {
-  if (/^I-\d{3}$/.test(String(p.fm.idea)) && !byId.get(p.fm.idea)?.rel.startsWith("wiki/ideas/")) err(p, `unknown idea ${p.fm.idea}`);
-  if (p.fm.status === "active" && p.fm.started) activePlans.set(p.fm.idea, p);
+for (const p of [...ideas, ...briefs, ...evidence]) {
+  if (p.fm.domain != null && !isA(p.fm.domain, "domains")) err(p, `unknown domain ${p.fm.domain}`);
+  if (p.fm.idea != null && !isA(p.fm.idea, "ideas")) err(p, `unknown idea ${p.fm.idea}`);
 }
-for (const p of pages.filter(p => p.rel.startsWith("wiki/briefs/") && p.fm)) {
-  const plan = activePlans.get(p.fm.idea);
-  if (plan && p.fm.workstream == null && p.fm.created && Date.parse(p.fm.created) >= Date.parse(plan.fm.started))
-    warn(p, `brief of an idea with an active plan (${plan.fm.id}) has no workstream`);
-}
-// Orphan evidence: no idea, no brief link back
-for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {
-  if (!referenced.has(p.fm.id) && !(p.fm.ideas?.length) ) warn(p, "orphan evidence (not linked from any page, no ideas)");
-}
-// Accumulation: a collected brief must be folded into topic pages; numeric claims verified
-const topicText = pages.filter(p => p.rel.startsWith("wiki/topics/") && p.fm).map(t => t.text).join("\n");
+for (const p of evidence) if (p.fm.brief != null && !isA(p.fm.brief, "briefs")) err(p, `unknown brief ${p.fm.brief}`);
+for (const p of [...critiques, ...reports]) if (p.fm.target && !byId.has(p.fm.target)) err(p, `unknown target ${p.fm.target}`);
+for (const p of analyses) if (p.fm.idea && !isA(p.fm.idea, "ideas")) err(p, `unknown idea ${p.fm.idea}`);
+// Orphan evidence: nothing links to it and it names no domain or idea
+for (const p of evidence) if (!referenced.has(p.fm.id) && p.fm.domain == null && p.fm.idea == null) warn(p, "orphan evidence (not linked from any page, no domain or idea)");
+// Accumulation: a collected brief with evidence must be folded into topic pages; numeric claims verified
+const topicText = topics.map(t => t.text).join("\n");
 for (const [bid, st] of briefStatus) {
-  if (!["collected", "done"].includes(st)) continue;
+  if (st !== "collected") continue;
   const prefix = "E-" + bid.replace("-", "") + "-";
-  const b = pages.find(p => p.fm?.id === bid);
-  if (b && !topicText.includes("[[" + prefix)) warn(b, `collected brief not folded into any topic page (no [[${prefix}…]] under wiki/topics/)`);
+  const b = byId.get(bid);
+  if (b && evidence.some(e => String(e.fm.id).startsWith(prefix)) && !topicText.includes("[[" + prefix))
+    warn(b, `collected brief not folded into any topic page (no [[${prefix}…]] under wiki/topics/)`);
 }
-for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {
-  const st = briefStatus.get(p.fm.brief);
-  if (["collected", "done"].includes(st) && p.fm.type !== "absence" && /\d/.test(String(p.fm.claim)) && p.fm.verification == null) warn(p, "numeric claim not verified");
-}
-// Evidence resting on a blocked source
-for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {
+for (const p of evidence) {
+  if (briefStatus.get(p.fm.brief) === "collected" && p.fm.type !== "absence" && /\d/.test(String(p.fm.claim)) && p.fm.verification == null) warn(p, "numeric claim not verified");
   if (typeof p.fm.source === "string" && blockedSources.has(p.fm.source)) warn(p, `rests on a blocked source ${p.fm.source}`);
-}
-// Contradiction symmetry
-for (const p of pages.filter(p => p.rel.startsWith("wiki/evidence/") && p.fm)) {
   for (const c of p.fm.contradicts ?? []) {
     const other = byId.get(c);
-    if (other && !(other.fm.contradicts ?? []).includes(p.fm.id)) warn(p, `contradicts ${c} but ${c} does not link back`);
+    if (other && !(other.fm.contradicts ?? []).includes(p.fm.id)) warn(p, `contradicts ${c} but ${c} does not link back (lint --fix adds it)`);
   }
 }
 
+for (const f of fixes) console.log("FIXED   " + f);
 for (const e of errors) console.log("ERROR   " + e);
 for (const w of warnings) console.log("WARNING " + w);
-console.log(`\nlint: ${errors.length} error(s), ${warnings.length} warning(s), ${pages.length} page(s)`);
+console.log(`\nlint: ${errors.length} error(s), ${warnings.length} warning(s), ${pages.length} page(s)${FIX ? `, ${fixes.length} fix(es)` : ""}`);
 process.exit(errors.length ? 1 : 0);
