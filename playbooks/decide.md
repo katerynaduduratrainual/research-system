@@ -1,0 +1,58 @@
+---
+name: decide
+description: Record a decision — on an idea (advance, park, kill) or on a domain (focus, promote, drop, pause, continue, close) — in the decision log and on the page. The only way docs/decision-log.md is edited.
+argument-hint: 'I-### advance|park|kill "<reason>" | D-### focus|promote|drop|pause|continue|close [<n> | "<text>"] "<reason>"'
+disable-model-invocation: true
+---
+
+Arguments: $ARGUMENTS.
+
+The only way `docs/decision-log.md` is edited. A decision without a one-sentence reason
+is not recorded: if the reason is missing, ask for it with AskUserQuestion.
+
+## Idea: `I-### advance|park|kill "<reason>"`
+1. Append to `docs/decision-log.md` (newest last):
+   ```
+   ## <yyyy-mm-dd> · I-### · <advance|park|kill>
+   - Хто: <owner>
+   - Рішення: <decision> — <reason, the user's words>
+   - Стадія до/після: <from> → <to>
+   - На основі: [[R-###]] (звіт), бал <total>/5, критик: <top objection, one line>
+   - Що б змінило рішення: <copy from the report>
+   - Переглянути: <date or condition, for park>
+   ```
+   Without a report: `На основі: звіту немає — рішення редактора; докази: [[B-###]]`
+   and `Що б змінило рішення: визначить дослідження`.
+2. Update the idea card: `decision:`, `decided:`, `stage:` (advance → `validation`;
+   park → `parked`; kill → `killed`), `checkpoint: null`, `updated:`, a `## Лог` line.
+3. Commit `decide(I-###): <decision>`. Run `node scripts/index.mjs`; commit
+   `index: after decide(I-###)` if it changed. `git push`. Confirm in one line; no
+   commentary on the decision.
+
+## Domain
+- `D-### focus "<sub-areas>" "<reason>"`: write «Фокус» (sub-areas, reason, date); add
+  queue items for them under the matching layers (origin `редактор`); `phase: focus`,
+  `checkpoint: null`.
+- `D-### promote <n> "<reason>"`: allocate `node scripts/next-id.mjs I`; create
+  `wiki/ideas/I-###-<slug>.md` from `templates/idea.md`: the hypothesis from the
+  candidate row, «Звідки ідея» = candidate n of D-###, `domain: D-###`, `owner` = the
+  domain's owner, `author` = the user, `stage: active`, kill criteria from the critic's
+  objections to this candidate, `created`, `updated`. Set the candidate's state to
+  `ідея I-###`. On the first promote: `phase: candidates`. Commit
+  `idea(I-###): promoted from D-### candidate n`.
+- `D-### drop <n> "<reason>"`: the candidate's state → `відхилено`.
+- `D-### pause|continue "<reason>"`: `status: paused` / `status: active`.
+- `D-### close "<reason>"`: `status: closed`, `checkpoint: null`.
+
+Each domain action appends
+```
+## <yyyy-mm-dd> · D-### · <focus|promote|drop|pause|continue|close>
+- Хто: <owner>
+- Рішення: <action> — <reason, the user's words>
+- На основі: [[R-###]] (звіт) або «звіту немає — рішення редактора»; критик: <top objection>
+- Що б змінило рішення: <from the report or critique, or —>
+```
+then sets `updated:` and a `## Лог` line on the domain page, commits
+`decide(D-###): <action>`, runs `node scripts/lint.mjs --fix` and `node scripts/index.mjs`,
+and does `git push`. Confirm in one line; after a promote add the next step in words
+(the idea's quick check through `/explore I-###`).
