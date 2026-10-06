@@ -1,42 +1,35 @@
 #!/usr/bin/env node
-// Pipeline state for /status and /review. `--waiting` prints only what waits on the user.
-import { loadWiki } from "./_lib.mjs";
+// Pipeline state for /review and /explore. `--waiting` prints only what waits on the user.
 import { readFileSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { ROOT } from "./_lib.mjs";
+import { loadWiki, under, ROOT } from "./_lib.mjs";
 
 const onlyWaiting = process.argv.includes("--waiting");
 const pages = loadWiki();
-const under = dir => pages.filter(p => p.rel.startsWith(`wiki/${dir}/`) && p.fm);
-const ideas = under("ideas"), briefs = under("briefs"), reports = under("reports");
-const evidence = under("evidence"), sources = under("sources"), plans = under("plans");
-const topics = under("topics");
-const ideaById = new Map(ideas.map(i => [i.fm.id, i]));
-
-const ACTIVE_STAGES = ["scouts", "verify", "librarian", "digest", "redteam", "report"];
+const domains = under(pages, "domains"), ideas = under(pages, "ideas"), briefs = under(pages, "briefs");
+const evidence = under(pages, "evidence"), sources = under(pages, "sources"), topics = under(pages, "topics");
+const reports = under(pages, "reports");
+const LAYERS = ["fundamentals", "demand", "models", "signals", "entry"];
 const WORKSTREAMS = ["demand", "competition", "complexity", "economics", "entry"];
+const CHAIN = ["scouts", "verify", "digest"];
 const DAY = 86400e3;
-const inChain = b => ACTIVE_STAGES.includes(b.fm.run_stage);
+const inChain = b => CHAIN.includes(b.fm.run_stage);
 const short = (s, n = 90) => { s = String(s ?? ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
+const tag = b => b.fm.idea ? ` (${b.fm.idea})` : b.fm.domain ? ` (${b.fm.domain})` : "";
+const queue = p => (p.body.match(/^\s*(?:\d+\.|-)\s+\[ \]/gm) ?? []).length;
+const conf = (p, keys) => keys.map(k => `${k}: ${p.fm.confidence?.[k] ?? "—"}`).join(" · ");
 
-// --- Waiting on you: the deferred gates ---------------------------------------
+// --- Waiting on you: stops and gates --------------------------------------------------
 const waiting = [];
 for (const b of briefs) if (b.fm.status === "draft") waiting.push(`gate 1: ${b.fm.id} [draft] ${short(b.fm.question)} → approve or edit the brief`);
-for (const p of plans) if (p.fm.status === "draft") waiting.push(`gate 1: ${p.fm.id} [draft] → /plan ${p.fm.idea}`);
+for (const b of briefs) if (b.fm.run_stage === "checked") waiting.push(`stop after collection: ${b.fm.id}${tag(b)} collected and verified → /review ${b.fm.id}`);
 for (const b of briefs) {
   if (b.fm.status !== "collected" || b.fm.reviewed != null || b.fm.run_stage != null) continue;
   const since = String(b.fm.run_finished ?? b.fm.run_started ?? "?").slice(0, 10);
-  waiting.push(`gate 2: ${b.fm.id}${b.fm.idea ? ` (${b.fm.idea})` : ""} collected ${since} → /review ${b.fm.id}`);
+  waiting.push(`gate 2: ${b.fm.id}${tag(b)} collected ${since} → /review ${b.fm.id}`);
 }
-for (const b of briefs) if (b.fm.run_stage === "checked")
-  waiting.push(`stop b: ${b.fm.id}${b.fm.idea ? ` (${b.fm.idea})` : ""} collected and verified, waiting for your go → /review ${b.fm.id}`);
-for (const idea of ideas) {
-  const own = reports.filter(r => r.fm.target === idea.fm.id).sort((a, b) => String(a.fm.created).localeCompare(String(b.fm.created)) || String(a.fm.id).localeCompare(String(b.fm.id)));
-  const last = own.at(-1);
-  if (last && (!idea.fm.decided || Date.parse(idea.fm.decided) < Date.parse(last.fm.created)))
-    waiting.push(`gate 3: ${last.fm.id} → ${idea.fm.id} (${last.fm.type}) → /review ${idea.fm.id}`);
-}
-for (const p of plans) if (p.fm.checkpoint === "ready") waiting.push(`gate 3: ${p.fm.id} checkpoint (${p.fm.phase}) → /review ${p.fm.idea}`);
+for (const d of domains) if (d.fm.checkpoint === "ready") waiting.push(`phase stop: ${d.fm.id} (${d.fm.phase}) → /review ${d.fm.id}`);
+for (const i of ideas) if (i.fm.checkpoint === "ready") waiting.push(`gate 3: ${i.fm.id} → /review ${i.fm.id}`);
 const oq = join(ROOT, "wiki", "open-questions.md");
 const open = existsSync(oq) ? readFileSync(oq, "utf8").split("\n").filter(l => l.startsWith("- [ ]")) : [];
 
@@ -46,7 +39,7 @@ waiting.forEach(l => console.log(l));
 if (open.length) { console.log(`questions (${open.length}):`); open.slice(0, 5).forEach(l => console.log(l)); }
 if (onlyWaiting) process.exit(0);
 
-// --- Running: background chains -------------------------------------------------
+// --- Running: background chains -------------------------------------------------------
 const needsCheck = e => e.fm.type !== "absence" && /\d/.test(String(e.fm.claim));
 function progress(b) {
   const sqs = new Set([...b.body.matchAll(/^### (\d+)\. /gm)].map(m => m[1]));
@@ -63,51 +56,58 @@ function progress(b) {
   return `evidence ${covered.length}/${sqs.size} sq · verified ${verified.length}/${sqs.size} sq`;
 }
 console.log("\n## Running");
-const runningLines = [];
+const running = [];
 for (const b of briefs.filter(inChain)) {
   const mins = b.fm.run_started ? Math.round((Date.now() - Date.parse(b.fm.run_started)) / 60000) : null;
-  const stale = mins != null && mins > 180 ? ` · possibly interrupted: /run ${b.fm.id}` : "";
-  runningLines.push(`${b.fm.id} [${b.fm.run_stage}] ${mins ?? "?"} min · ${progress(b)}${b.fm.idea ? ` (${b.fm.idea})` : ""}${stale}`);
+  const stale = mins != null && mins > 180 ? ` · possibly interrupted: /research ${b.fm.id}` : "";
+  running.push(`${b.fm.id} [${b.fm.run_stage}] ${mins ?? "?"} min · ${progress(b)}${tag(b)}${stale}`);
 }
-for (const b of briefs.filter(b => b.fm.run_stage === "queued")) runningLines.push(`${b.fm.id} [queued] starts when a running brief finishes`);
-for (const p of plans) if (p.fm.checkpoint === "running") runningLines.push(`${p.fm.id} checkpoint running (analyst → red team), phase ${p.fm.phase}`);
-console.log(runningLines.length ? runningLines.join("\n") : "nothing is running");
+for (const b of briefs.filter(b => b.fm.run_stage === "queued")) running.push(`${b.fm.id} [queued] starts when a running brief finishes`);
+for (const d of domains) if (d.fm.checkpoint === "running") running.push(`${d.fm.id} phase stop running (${d.fm.phase === "intro" ? "writer primer" : "critic → writer"})`);
+for (const i of ideas) if (i.fm.checkpoint === "running") running.push(`${i.fm.id} synthesis running (writer analysis → critic → writer final)`);
+console.log(running.length ? running.join("\n") : "nothing is running");
 
-// --- Plans: the long track --------------------------------------------------------
-console.log("\n## Plans");
-const livePlans = plans.filter(p => p.fm.status !== "closed");
-if (!livePlans.length) console.log("none");
-for (const p of livePlans) {
-  const start = Date.parse(p.fm.started), target = Date.parse(p.fm.target_decision);
-  const week = Number.isFinite(start) && Number.isFinite(target)
-    ? `week ${Math.floor((Date.now() - start) / (7 * DAY)) + 1} of ${Math.max(1, Math.ceil((target - start) / (7 * DAY)))}` : "not started";
-  const conf = WORKSTREAMS.map(w => `${w}: ${p.fm.confidence?.[w] ?? "—"}`).join(" · ");
-  const queue = (p.body.match(/^\s*(?:\d+\.|-)\s+\[ \]/gm) ?? []).length;
-  console.log(`${p.fm.id} ${p.fm.idea} [${p.fm.status}] phase ${p.fm.phase} · ${week} · ${conf} · queue ${queue} · briefs ${(p.fm.briefs ?? []).length}`);
+// --- Domains ----------------------------------------------------------------------------
+console.log("\n## Domains");
+const live = domains.filter(d => d.fm.status !== "closed");
+if (!live.length) console.log("none");
+for (const d of live) {
+  const start = Date.parse(d.fm.created), target = Date.parse(d.fm.target);
+  const wk = Number.isFinite(start) ? Math.floor((Date.now() - start) / (7 * DAY)) + 1 : "?";
+  const week = Number.isFinite(start) && Number.isFinite(target) ? `week ${wk} of ${Math.max(1, Math.ceil((target - start) / (7 * DAY)))}` : `week ${wk}`;
+  const cp = d.fm.checkpoint ? ` · checkpoint ${d.fm.checkpoint}` : "";
+  console.log(`${d.fm.id} ${d.fm.title ?? ""} [${d.fm.status}] phase ${d.fm.phase} · ${week} · ${conf(d, LAYERS)} · queue ${queue(d)} · briefs ${(d.fm.briefs ?? []).length}${cp}`);
 }
 
-// --- Inventory ----------------------------------------------------------------------
+// --- Ideas ------------------------------------------------------------------------------
 console.log("\n## Ideas");
-for (const st of ["inbox", "screening", "deep-dive", "validation", "parked", "killed"]) {
-  const list = ideas.filter(i => i.fm.stage === st);
-  if (list.length) console.log(`${st}: ` + list.map(i => `${i.fm.id} ${i.fm.title ?? ""} (${i.fm.total ?? "—"})`).join(" · "));
+if (!ideas.length) console.log("none");
+for (const i of ideas.filter(i => !["parked", "killed"].includes(i.fm.stage))) {
+  const cp = i.fm.checkpoint ? ` · checkpoint ${i.fm.checkpoint}` : "";
+  console.log(`${i.fm.id} ${i.fm.title ?? ""} [${i.fm.stage}]${i.fm.domain ? ` ${i.fm.domain}` : ""} · ${conf(i, WORKSTREAMS)} · queue ${queue(i)} · total ${i.fm.total ?? "—"}${cp}`);
 }
+for (const st of ["parked", "killed"]) {
+  const list = ideas.filter(i => i.fm.stage === st);
+  if (list.length) console.log(`${st}: ` + list.map(i => `${i.fm.id} ${i.fm.title ?? ""}`).join(" · "));
+}
+
+// --- Briefs -----------------------------------------------------------------------------
 function next(b) {
-  const { status, run_stage, reviewed, idea, id } = b.fm;
+  const { status, run_stage, reviewed, id } = b.fm;
   if (status === "draft") return "approve or edit (gate 1)";
-  if (status === "approved") return run_stage === "queued" ? "queued" : `/run ${id}`;
+  if (status === "approved") return run_stage === "queued" ? "queued" : `start or resume: /research ${id}`;
   if (run_stage === "checked") return `/review ${id}`;
-  if (status === "running" || inChain(b)) return "running";
-  if (status === "collected") {
-    if (reviewed == null) return `/review ${id}`;
-    if (!idea) return `/red-team ${id} → /report ${id}`;
-    return ["parked", "killed"].includes(ideaById.get(idea)?.fm.stage) ? "—" : `/plan ${idea}`;
-  }
+  if (status === "running") return "running";
+  if (status === "collected") return reviewed == null ? `/review ${id}` : "reviewed";
   return "—";
 }
 console.log("\n## Briefs");
-for (const b of briefs) console.log(`${b.fm.id} [${b.fm.status}] ${short(b.fm.question, 110)} → next: ${next(b)}${b.fm.idea ? ` (${b.fm.idea})` : ""}`);
+if (!briefs.length) console.log("none");
+for (const b of briefs) console.log(`${b.fm.id} [${b.fm.status}] ${short(b.fm.question, 110)} → next: ${next(b)}${tag(b)}`);
+
+// --- Reports and counts -----------------------------------------------------------------
 console.log("\n## Reports");
+if (!reports.length) console.log("none");
 for (const r of reports.slice(-5)) console.log(`${r.fm.id} → ${r.fm.target} (${r.fm.type}, ${r.fm.confidence})`);
 const grades = {}; for (const s of sources) grades[s.fm.grade] = (grades[s.fm.grade] ?? 0) + 1;
-console.log(`\n## Counts\nevidence ${evidence.length} · sources ${sources.length} ${JSON.stringify(grades)} · ideas ${ideas.length} · topics ${topics.length} (stale ${topics.filter(t => t.fm.status === "stale").length}) · plans ${plans.length}`);
+console.log(`\n## Counts\nevidence ${evidence.length} · sources ${sources.length} ${JSON.stringify(grades)} · domains ${domains.length} · ideas ${ideas.length} · topics ${topics.length} (stale ${topics.filter(t => t.fm.status === "stale").length})`);
