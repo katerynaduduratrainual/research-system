@@ -1,12 +1,16 @@
 ---
 id: B-000
 question: ""
+domain: null          # D-### або null
 idea: null            # I-### або null
-workstream: null      # demand | competition | complexity | economics | entry | null (наскрізний)
-status: draft         # draft | approved | running | collected | done
+layer: null           # напрям: fundamentals | demand | models | signals | entry
+                      # ідея: demand | competition | complexity | economics | entry
+                      # null = наскрізний або поза напрямом
+author: ""
+status: draft         # draft | approved | running | collected
 created: 0000-00-00
 approved: null
-run_stage: null       # queued | scouts | verify | checked | librarian | digest | redteam | report | null
+run_stage: null       # queued | scouts | verify | checked | digest | null
 run_started: null     # yyyy-mm-ddThh:mm
 run_finished: null    # yyyy-mm-ddThh:mm
 reviewed: null        # yyyy-mm-dd — гейт 2 пройдено
@@ -47,4 +51,4 @@ Brief закрито, коли: …
 _(дописує /run на кожному кроці: `- <yyyy-mm-dd hh:mm> · <крок> · <що сталося>`)_
 
 ## Digest
-_(заповнює /run після збору доказів)_
+_(заповнює лід на кроці 7 playbook'у research)_

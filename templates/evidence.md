@@ -1,5 +1,5 @@
 ---
-id: E-B000-0-00
+id: E-B000-0-00      # E-B###-<sq>-<nn> | E-D###-C-<nn> | E-I###-C-<nn> | E-ING-<yyyymmdd>-<nn>
 claim: ""             # одне твердження, своїми словами, ≤ 25 слів
 type: fact            # fact | statistic | estimate | opinion | anecdote | absence
 source: S-00000000    # null лише для type: absence
@@ -8,7 +8,8 @@ confidence: medium    # high | medium | low
 date_of_info: ""      # до якого періоду стосується інформація, напр. 2025-Q3
 brief: B-000
 subquestion: 0
-ideas: []             # [I-001]
+domain: null          # D-### або null; скауту досить заповнити brief
+idea: null            # I-### або null
 contradicts: []       # [E-...]
 created: 0000-00-00
 verified: null        # дата перевірки verifier'ом

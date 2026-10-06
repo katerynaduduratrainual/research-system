@@ -3,7 +3,7 @@ id: T-slug             # T-<slug>, латиниця й дефіси
 title: ""
 updated: 0000-00-00
 briefs: []             # briefs, з яких узято докази
-ideas: []              # ідеї, яких стосується тема
+domains: []            # напрями, яких стосується тема
 status: active         # active | stale (не оновлювалась понад 60 днів)
 ---
 
