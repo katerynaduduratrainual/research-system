@@ -27,7 +27,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/redteam-gate.mjs"
+            "command": "node \"$CLAUDE_PROJECT_DIR\"/scripts/hooks/critique-gate.mjs"
           }
         ]
       }
