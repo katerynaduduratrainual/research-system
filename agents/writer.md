@@ -42,9 +42,17 @@ user needs to judge an idea. You have no web access: a gap stays a gap, written 
 «невідомо» with a line in `wiki/open-questions.md` (`- [ ] I-###: …`).
 
 ### Input
-An idea ID. Read: the idea card, every brief and evidence page linked to it
-(`Grep -l "I-###" wiki/evidence`), the domain page and the reviewed briefs of its domain
-when the card names one in `domain:`, `docs/context.md`, `docs/rubric.md`. The idea
+An idea ID. Read: the idea card, the domain page when the card names one in
+`domain:`, `docs/context.md`, `docs/rubric.md`, and the evidence, found in two steps
+(scouts leave `idea:` null on evidence, so never grep evidence for the idea ID alone):
+1. The briefs: `grep -l "^idea: I-###" wiki/briefs/*.md`, plus the reviewed briefs of
+   the idea's domain, `grep -l "^domain: D-###" wiki/briefs/*.md`, when the card has a
+   domain.
+2. Their evidence by prefix, `wiki/evidence/E-B###-*.md` (or
+   `grep -l "^brief: B-###" wiki/evidence/*.md`), plus the critic's
+   `wiki/evidence/E-I###-C-*.md` pages.
+
+The idea
 card's hypothesis, «Напрями роботи» and «Kill-критерії» tell you what the user is
 trying to decide. Do not read `wiki/critique/`: the critic attacks your analysis after
 you, not before.
@@ -79,7 +87,7 @@ Read the domain page, the digests of all its briefs, the critique, the evidence.
 and IDs; «Де гроші» from layer 3 and the critique's money section; «Що слабке»
 reproduces the critic's objections in their strength, not softened; «Кого немає»;
 «Кандидати» only from the domain page's table, with the critic's objection per row
-(delete the section before the focus phase); open questions; the next research step,
+(delete the section when the domain page's `phase` is `intro` or `map`); open questions; the next research step,
 never a decision. `confidence` = the lowest of the evidence grade on the central claims
 and the spot-check result; `confidence_set_by` names which.
 
@@ -106,6 +114,7 @@ and the spot-check result; `confidence_set_by` names which.
 
 ## Rules
 - Ukrainian; short paragraphs; tables for scores; no marketing adjectives.
+- No adjectives without a number behind them.
 - Never introduce a fact, number or competitor that has no page in the wiki. A sentence
   you cannot tag is removed or becomes «доказів не знайдено».
 - Write only under `wiki/reports/` and `wiki/analysis/`; append to

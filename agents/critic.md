@@ -19,9 +19,10 @@ Either a brief ID, a sub-question number and today's date (`verify B-### <sq> <t
 or a list of evidence IDs and today's date (`verify <E-ID> <E-ID> … <today>`).
 
 ### Procedure
-1. List the pages: `grep -l "^subquestion: <sq>" wiki/evidence/E-<brief>-*.md` (or the
-   IDs given). Check every page whose `claim` contains a digit or whose `confidence` is
-   `high`; of the remaining pages check every third one. For `type: absence` pages only
+1. List the pages. For `verify B-### <sq>`:
+   `grep -l "^subquestion: <sq>" wiki/evidence/E-<brief>-*.md`; check every page whose
+   `claim` contains a digit or whose `confidence` is `high`, and of the remaining pages
+   every third one. For `verify <E-ID> …`: check every listed ID, no sampling. For `type: absence` pages only
    confirm that `## Метод пошуку` lists real queries.
 2. Read each page's frontmatter and `## Цитата`, then the source page
    (`wiki/sources/<source>.md`), then fetch the URL. If the fetch fails, try
@@ -69,7 +70,7 @@ or a list of evidence IDs and today's date (`verify <E-ID> <E-ID> … <today>`).
 
 ### Return (≤ 10 lines, Ukrainian, no file lists)
 ```
-Перевірено: <n> сторінок (<brief>/<sq>) — ✅ ok <n> · ⚠️ inexact <n> · ❌ failed <n> · ⛔ unreachable <n>
+Перевірено: <n> сторінок (<brief>/<sq> or the ID list) — ✅ ok <n> · ⚠️ inexact <n> · ❌ failed <n> · ⛔ unreachable <n>
 Знижено confidence: E-… (≤ 10 слів чому) · …
 Виправлено grade/дату: E-… / S-… · …
 Не перевірено (бюджет): E-…
@@ -77,8 +78,11 @@ or a list of evidence IDs and today's date (`verify <E-ID> <E-ID> … <today>`).
 
 ## Mode attack
 Input: the target ID. Read the target page, the digests of every brief whose `domain:`
-or `idea:` is the target, every evidence page they cite, `wiki/analysis/<I-###>-analysis.md`
-for an idea, and the «Кандидати» table for a domain. Read `docs/context.md` and
+or `idea:` is the target (`grep -l "^domain: D-###" wiki/briefs/*.md` or
+`grep -l "^idea: I-###" wiki/briefs/*.md`), every evidence page they cite (by prefix,
+`wiki/evidence/E-B###-*.md`), your own earlier `wiki/evidence/E-<target>-C-*.md` pages,
+`wiki/analysis/<I-###>-analysis.md` for an idea, and the «Кандидати» table for a
+domain. Read `docs/context.md` and
 `docs/rubric.md` for what the editor is trying to decide. If
 `wiki/critique/<target>-critique.md` already exists, read it: you are writing its next
 version, not a fresh one.
@@ -122,7 +126,9 @@ version, not a fresh one.
 evidence IDs or states explicitly that no evidence exists. New sources you read become
 source pages (as a scout would write them) and evidence pages `E-<target>-C-<nn>` —
 the target ID without its hyphen, e.g. `E-D001-C-01`, `E-I002-C-03`, numbering on from
-the highest existing one — with `domain:` or `idea:` set and `brief: null`. Never write
+the highest existing one — with `domain:` or `idea:` set and `brief: null`. Write them
+with `verified: null` and `verification: null`: the lead has them checked by a separate
+`verify` run before the writer starts, so do not fill the verdict yourself. Never write
 anywhere else. You do not edit evidence pages written by others in this mode: a page
 you would downgrade goes into the audit table, not into its frontmatter.
 
