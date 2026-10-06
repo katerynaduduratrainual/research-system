@@ -24,8 +24,8 @@ to, and the topic pages under `wiki/topics/` that touch it.
 ## Non-negotiable rules
 1. **Gates and stops.** Three gates: brief approved → evidence reviewed → decision
    recorded. Inside a run two stops: after collection and verification, and after the
-   digest (gate 2). A domain has a phase stop after the primer, after the map and after
-   the focus; an idea has gate 3 after its final report. At every stop you say in the
+   digest (gate 2). A domain has a phase stop at the end of each phase (after the primer, after the map,
+   after the focus, and in the candidates phase whenever the editor asks); an idea has gate 3 after its final report. At every stop you say in the
    chat, in plain words, what you have and what comes next, then ask with
    `AskUserQuestion` and wait. A chain never runs past a stop on its own. When a stage
    finishes while the editor is away, the work waits (`node scripts/status.mjs` →
@@ -55,7 +55,7 @@ to, and the topic pages under `wiki/topics/` that touch it.
    link them with `contradicts:`. Never average, never pick one silently.
 8. **Quotes ≤ 30 words.** Paraphrase; the source page carries the link.
 9. **Commit after every step** (`<stage>(<id>): <summary>`). **Push at gates**: at the
-   end of `/review`, `/decide`, and after gate 2 of a run, or when the editor asks. Push
+   end of `/review`, `/decide`, and after gate 2 of a run, at a domain phase stop, or when the editor asks. Push
    is deliberately not on the allow list; every push goes through the permission prompt
    and the editor confirms it. Never bypass or pre-approve it.
 10. **Only `/decide` writes `docs/decision-log.md`.**
@@ -71,12 +71,12 @@ to, and the topic pages under `wiki/topics/` that touch it.
 | Topic | `wiki/topics/T-<slug>.md` | `T-local-llm-hardware` | `templates/topic.md` |
 | Critique | `wiki/critique/<D or I>-critique.md` | by target | `templates/critique-domain.md`, `templates/critique-idea.md` |
 | Analysis | `wiki/analysis/<I-###>-analysis.md` | by target | `templates/analysis.md` |
-| Report | `wiki/reports/R-###-<slug>.md` | `R-001` | `templates/primer.md`, `templates/report-domain.md`, `templates/report-final.md` |
+| Report (`type: primer \| domain \| final`) | `wiki/reports/R-###-<slug>.md` | `R-001` | `templates/primer.md`, `templates/report-domain.md`, `templates/report-final.md` |
 
 - A **domain** is the long track (weeks to months): five layers — `fundamentals`,
   `demand`, `models`, `signals`, `entry` — each with what is known, a confidence and a
   queue of questions; four phases `intro → map → focus → candidates`, each ending in a
-  stop. State: `phase`, `checkpoint` (`running | ready | null`), `confidence` per layer.
+  stop. State: `phase`, `checkpoint` (`running | ready | null`), `confidence` per layer. `status: active | paused | closed`.
 - An **idea** carries five workstreams — `demand`, `competition`, `complexity`,
   `economics`, `entry` — in the same shape, kill criteria, rubric scores and a
   `target_decision`; no phases. State: `stage` (`active | validation | parked | killed`),
@@ -92,7 +92,7 @@ to, and the topic pages under `wiki/topics/` that touch it.
   parallel scouts never collide: check whether the file exists before creating it.
 - Link entities by ID in double brackets: `[[E-B001-2-03]]`, `[[S-a1b2c3d4]]`, `[[D-001]]`.
 - Source grades: **A** primary data, official statistics, peer-reviewed publications,
-  filings; **B** reputable press, analyst reports, named experts, preprints without a
+  filings; **B** reputable press, analytical reports, named experts, preprints without a
   confirmed peer-reviewed venue, and a vendor's official documentation or price list
   about its **own** product (features, limits, prices only); **C** vendor marketing,
   blogs, a vendor's quality or performance claims, secondary summaries; **D** forums,

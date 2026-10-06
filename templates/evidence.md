@@ -12,7 +12,7 @@ domain: null          # D-### або null; скауту досить запов�
 idea: null            # I-### або null
 contradicts: []       # [E-...]
 created: 0000-00-00
-verified: null        # дата перевірки verifier'ом
+verified: null        # дата перевірки критиком (verify)
 verification: null    # ok | inexact | failed | unreachable
 ---
 
@@ -31,7 +31,7 @@ verification: null    # ok | inexact | failed | unreachable
 Які запити й джерела перевірено, коли; що саме не знайдено.
 
 ## Верифікація
-_(заповнює verifier: дата — вердикт: що каже джерело; що виправити)_
+_(заповнює критик у режимі verify: дата — вердикт: що каже джерело; що виправити)_
 
 ## Нотатки
 Чому саме така впевненість. З чим суперечить.

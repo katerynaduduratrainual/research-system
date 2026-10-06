@@ -1,7 +1,9 @@
 # Research System
 
-Система для планомірного ресерчу бізнес-ідей на Claude Code: людина в циклі,
-суб-агенти для збору доказів, wiki у git як накопичувальна база знань.
+Система для планомірного дослідження напряму до появи ідеї: людина в циклі, три
+агенти для збору, перевірки й написання, wiki у git як накопичувальна база знань.
+Протокол лежить у звичайному markdown (`AGENTS.md`, `agents/`, `playbooks/`), Claude
+Code — основне середовище, `.claude/` лише адаптер.
 
 ## Що потрібно
 - Claude Code (особистий акаунт Pro/Max, не корпоративний)
@@ -10,39 +12,40 @@
 
 ## Старт
 ```bash
-git init && git add . && git commit -m "chore: research-system v0"
-claude
+git clone <repo> && cd research-system && claude
 ```
 У Claude Code:
 1. Заповніть `docs/context.md` (команда, ресурси, обмеження) — від цього залежить
    критерій «відповідність» у рубриці.
-2. `/screen <ідея>` → швидкий скринінг у фоні → звіт і питання в чаті → **рішення**: park,
-   kill або «на довгий трек».
-3. `/plan I-001` → план дослідження на 1–3 місяці: п'ять напрямів, черга питань, три
-   фази → **затверджуєте** план і перші brief'и.
-4. Brief'и збираються у фоні, сесія вільна. Прогін двічі зупиняється й питає вас у
-   чаті: після збору й перевірки і після digest'у (**ревʼю**). `/review B-001` відкриває
-   зупинку, якщо ви відійшли.
-5. Після фаз «карта» і «глибина» — контрольна точка (аналітик + red team); у кінці
-   звіт із планом MVP → питання в чаті (`/review I-001`, якщо відійшли) → `/decide` → decision log і картка оновлені.
+2. `/explore "<напрям>"` → три питання про мотив і межі → вступний brief → **гейт 1** →
+   прогін у фоні з двома зупинками → конспект на 2–4 сторінки → **зупинка**: карта.
+3. `/explore D-001` → наступні brief'и на вибір → після карти критик і звіт стану →
+   **ви вибираєте фокус** → глибші brief'и → **кандидати** з доказів → `/decide D-001
+   promote n` → ідея.
+4. `/explore I-001` → brief'и по ідеї → «синтез» → аналіз, критика, фінальний звіт →
+   **гейт 3** → `/decide I-001 advance|park|kill`.
 
-Окреме питання поза планом: `/research "питання"` → brief → `/run B-001`.
-
-Інші команди: `/status` — що чекає на вас, що біжить, де плани; `/ingest <url|file>` —
-покласти власне джерело в raw/ і витягнути докази; `/red-team I-001` — окремий
-red team; `/report I-001` — звіт (тільки після red team); `/lint` — перевірка
-цілісності wiki. Докладно: `docs/workflow.md`.
+Поки агенти працюють, сесія вільна. `/review` показує, що чекає на вас, і відкриває
+зупинки, які настали без вас. Власне джерело — словами: «ось джерело <посилання>».
+Докладно: `docs/workflow.md`.
 
 ## Де що лежить
 ```
-docs/        концепція, рубрика, контекст, workflow, decision log
-raw/         незмінні копії джерел (YYYY-MM-DD-slug.md)
-wiki/        ideas · plans · briefs · evidence · sources · topics · analysis · redteam · reports
+AGENTS.md    правила системи (CLAUDE.md лише імпортує його)
+agents/      ролі: scout, critic, writer
+playbooks/   процедури: explore, research, checkpoint, ingest, decide, review
 templates/   шаблони сторінок
-scripts/     lint, next-id, source-id, status, now, tests/ (Node, без залежностей)
-.claude/     agents (ролі) · skills (команди) · settings.json
+scripts/     lint, index, status, next-id, source-id, now, hooks/, tests/ (Node, без залежностей)
+docs/        концепція, workflow, контекст, рубрика, decision log, специфікації
+wiki/        domains · ideas · briefs · evidence · sources · topics · critique · analysis · reports
+raw/         незмінні копії джерел (YYYY-MM-DD-slug.md)
+.claude/     адаптер Claude Code: symlink'и на agents/ і playbooks/, settings.json
 ```
 
+## Без Claude Code
+Людина або інший інструмент виконує роль, відкривши `agents/<роль>.md` як інструкцію
+для нової сесії; кроки з `playbooks/` ідуть один за одним; правило lint замінює hook.
+
 ## Переїзд на інший акаунт
-Усе, що потрібно системі, лежить у цьому репозиторії. На новій машині / акаунті:
-`git clone`, `claude`, `/login`. Нічого не зберігається глобально в `~/.claude/`.
+Усе, що потрібно системі, лежить у цьому репозиторії. На новій машині: `git clone`,
+`claude`, `/login`. Нічого не зберігається глобально в `~/.claude/`.
