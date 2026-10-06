@@ -34,7 +34,8 @@ Idea: $ARGUMENTS.
 6. Writer finished → link the report in the idea card; set the brief to `status: done`,
    `run_stage: null`, `run_finished: <now>`; log. Commit `screen(I-###): <slug>`. If a
    brief has `run_stage: queued`, start it.
-7. Tell the user one line: `R-### готовий: /review I-###`. Do not show the report and do
-   not ask anything. Gate 3 — advance (onto the long track, `/plan I-###`) / park / kill
-   / ще досліджувати — is asked in `/review`. A screening has no separate gate 2: the
+7. Right away do the gate-3 steps of `/review` (section I-###, case b): the
+   three-sentence answer, confidence, score, the red team's top risk, then the question
+   — advance (onto the long track, `/plan I-###`) / park / kill / ще досліджувати.
+   `/review I-###` shows the same later. A screening has no separate gate 2: the
    evidence is reviewed together with the report.

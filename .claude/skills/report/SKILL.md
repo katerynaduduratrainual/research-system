@@ -13,10 +13,12 @@ Arguments: $ARGUMENTS.
    the brief ID first if not — the red-team agent accepts a brief ID in place of an idea).
    If the precondition fails, say so and stop. Do not spawn the writer.
 2. Allocate `node scripts/next-id.mjs R`. Spawn `writer` with the target ID, report type
-   and report ID in the background. Tell the user in one line that it started and end
-   the turn.
+   and report ID in the background. Tell the user what it writes and roughly how long;
+   end the turn.
 3. On its completion: link the report in the idea card (or brief). Commit
    `report(R-###): <slug>`.
-   - Idea report → one line: `R-### готовий: /review I-###`. Gate 3 is asked there.
+   - Idea report → right away do the gate-3 steps of `/review` (section I-###, case
+     b): the three-sentence answer, confidence, score, top risk, then the question.
+     `/review I-###` shows the same later.
    - Brief-level report → set the brief `status: done`; show the three-sentence answer
      and the confidence line. Do not add your own verdict.

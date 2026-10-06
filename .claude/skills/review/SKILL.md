@@ -1,22 +1,27 @@
 ---
 name: review
-description: Pass the deferred gates when the user is ready — evidence review of a collected brief (gate 2), the decision on a screen or final report (gate 3), or a plan's phase checkpoint. With no argument, list everything that waits on the user. Use when the user asks to see, review or decide on finished work ("показуй B-004", "що чекає на мене").
+description: Reopen a stop or gate the user was away for — stop (b) of a run (collected and verified), evidence review of a collected brief (gate 2), the decision on a screen or final report (gate 3), or a plan's phase checkpoint. With no argument, list everything that waits on the user. Use when the user asks to see, review or decide on finished work ("показуй B-004", "що чекає на мене").
 argument-hint: '[B-### | I-###]'
 ---
 
 Arguments: $ARGUMENTS.
 
-This is where gates are asked. Nothing moves past a gate without the user's explicit
-answer here. Everything shown is Ukrainian.
+Gates and stops are asked in the chat the moment a stage finishes (`/run`, `/screen`,
+`/plan` call the sections below); this command reopens them later or lists what waits.
+Nothing moves past a gate without the user's explicit answer. Everything shown is
+Ukrainian, in plain words. Never mark an option as recommended: your view goes in the
+text before the question.
 
 ## No argument
 Run `node scripts/status.mjs --waiting`. Present it in ≤ 12 lines, each item with its
 exact command. Nothing else.
 
 ## B-### — gate 2, evidence reviewed
-1. The brief must be `status: collected` with `run_stage: null`. Still in a chain → say
-   which stage (`node scripts/status.mjs`) and stop. Already `reviewed` → say when, and
-   ask whether to open it again.
+1. The brief must be `status: collected` with `run_stage: null`. `run_stage: checked`
+   → this is stop (b): give the stop (b) report of `/run` and ask its question; on
+   «продовжити» run the **Tail** of `/run`. Any other stage → say which
+   (`node scripts/status.mjs`) and stop. Already `reviewed` → say when, and ask
+   whether to open it again.
 2. Show the digest headline in ≤ 12 lines: key findings per sub-question with grades,
    the verification tally and downgrades, contradictions, gaps, scouts that did not
    finish.
@@ -34,8 +39,8 @@ exact command. Nothing else.
      brief with the next numbers under `## Доповнюючі підпитання (<date>)`, get a
      one-word confirmation, then run the **Follow-up run** of `/run` in the background.
    - **стоп** → change nothing.
-4. `git push` — the permission prompt is the user's confirmation. Then name the next
-   step in one line: `/plan I-###` when the idea is on the long track, otherwise
+4. `git push` — the permission prompt is the user's confirmation. Then say what comes
+   next and what it gives: `/plan I-###` when the idea is on the long track, otherwise
    `/red-team` and `/report`.
 
 ## I-### — gate 3 or a phase checkpoint

@@ -28,6 +28,8 @@ for (const b of briefs) {
   const since = String(b.fm.run_finished ?? b.fm.run_started ?? "?").slice(0, 10);
   waiting.push(`gate 2: ${b.fm.id}${b.fm.idea ? ` (${b.fm.idea})` : ""} collected ${since} → /review ${b.fm.id}`);
 }
+for (const b of briefs) if (b.fm.run_stage === "checked")
+  waiting.push(`stop b: ${b.fm.id}${b.fm.idea ? ` (${b.fm.idea})` : ""} collected and verified, waiting for your go → /review ${b.fm.id}`);
 for (const idea of ideas) {
   const own = reports.filter(r => r.fm.target === idea.fm.id).sort((a, b) => String(a.fm.created).localeCompare(String(b.fm.created)) || String(a.fm.id).localeCompare(String(b.fm.id)));
   const last = own.at(-1);
@@ -94,6 +96,7 @@ function next(b) {
   const { status, run_stage, reviewed, idea, id } = b.fm;
   if (status === "draft") return "approve or edit (gate 1)";
   if (status === "approved") return run_stage === "queued" ? "queued" : `/run ${id}`;
+  if (run_stage === "checked") return `/review ${id}`;
   if (status === "running" || inChain(b)) return "running";
   if (status === "collected") {
     if (reviewed == null) return `/review ${id}`;

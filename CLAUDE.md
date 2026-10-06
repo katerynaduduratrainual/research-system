@@ -18,11 +18,14 @@ touch the task, and the plan under `wiki/plans/` of the idea the task belongs to
 ## Non-negotiable rules
 1. **Checkpoints.** Never proceed past a checkpoint without an explicit "yes" from the
    user in this conversation. The gates: (1) brief or plan approved → (2) evidence
-   reviewed → (3) decision recorded. Gates 2 and 3 are **deferred**: when a background
-   stage finishes, the work waits (`node scripts/status.mjs` → "Waiting on you"), you
-   say so in one line, and the gate question is asked only in `/review`, when the user
-   opens it. Never raise a gate question because a background stage finished. Subagents
-   cannot ask the user; only you can. A subagent that needs a human answer appends the
+   reviewed → (3) decision recorded. Inside a run the user validates at three stops
+   (decision 2026-10-06): (a) before launch — the questions; (b) after collection and
+   verification — what was found, with grades and what failed; (c) after the digest —
+   the conclusions (gate 2). At every stop you say in the chat, in plain words, what
+   you are about to do and why, or what you now have; then you ask and wait. A chain
+   never runs past a stop on its own. When a stage finishes while the user is away,
+   the work waits (`node scripts/status.mjs` → "Waiting on you") and `/review` reopens
+   the stop. Subagents cannot ask the user; only you can. A subagent that needs a human answer appends the
    question to `wiki/open-questions.md` and continues with what it can.
 2. **Provenance.** Every claim in the wiki links to an evidence page; every evidence page
    links to a source page with URL, publisher, date and grade. A number without a source
@@ -64,9 +67,11 @@ Entities and their templates (copy the template, fill every field):
   `demand`, `competition`, `complexity`, `economics`, `entry` — each with what is known,
   a confidence and a queue of questions; three phases, `map` → `depth` → `synthesis`,
   with a checkpoint after each. A brief written under a plan names its `workstream:`.
-- Run state lives in the brief: `run_stage` (`queued | scouts | verify | librarian |
-  digest | redteam | report | null`), `run_started`, `run_finished`, `reviewed` (gate 2
-  passed), and one line per transition in `## Журнал прогону`. A plan's checkpoint state
+- Run state lives in the brief: `run_stage` (`queued | scouts | verify | checked |
+  librarian | digest | redteam | report | null`; `checked` is stop (b): scouts and
+  verifiers done, the editor has not yet said to go on), `run_started`,
+  `run_finished`, `reviewed` (gate 2 passed), and one line per transition in
+  `## Журнал прогону`. A plan's checkpoint state
   is its `checkpoint:` (`running | ready | null`). Timestamps: `node scripts/now.mjs`.
 - Sequential IDs (I, B, R): `node scripts/next-id.mjs <prefix>`.
 - Evidence from `/ingest` (no brief): `E-ING-<yyyymmdd>-<nn>` via `next-id.mjs E-ING-<yyyymmdd>`.
@@ -87,14 +92,18 @@ Entities and their templates (copy the template, fill every field):
   as evidence for scoring a criterion `1` instead of `null`.
 
 ## Delegation
-- **Background, always.** Spawn every subagent in the background. Before spawning,
-  write the state to the file (`run_stage` on the brief, `checkpoint` on the plan);
-  after spawning, tell the user in one line and end the turn. Never wait on a subagent
-  in the foreground: the session belongs to the user while agents work.
+- **Background, always.** Spawn every subagent in the background. A stage starts only
+  after the user's yes at the stop before it (rule 1); before spawning, write the state
+  to the file (`run_stage` on the brief, `checkpoint` on the plan); after spawning,
+  tell the user in plain words what started, what it will give and roughly how long,
+  and end the turn. Never wait on a subagent in the foreground: the session belongs
+  to the user while agents work.
 - **On a completion notification**, re-read that state and do the next step of the
   chain it names: `/run` for briefs, `/screen` for screenings, `/plan` sections C–D for
-  checkpoints. The file, not your memory, says where the run is. Read the skill file
-  (`.claude/skills/<name>/SKILL.md`) if its steps are no longer in your context.
+  checkpoints. If the notification completes a stop, report what there is and ask;
+  otherwise continue the chain. The file, not your memory, says where the run is. Read
+  the skill file (`.claude/skills/<name>/SKILL.md`) if its steps are no longer in your
+  context.
 - One scout per sub-question. Simple question: 1 scout. Broad question: 4–7 scouts,
   spawned in the same turn so they run in parallel.
 - Every scout task prompt must contain: the sub-question, the brief and sub-question
@@ -109,8 +118,9 @@ Entities and their templates (copy the template, fill every field):
   claims into `wiki/topics/` before telling the user the brief is ready.
 - At most two briefs run at once; a third gets `run_stage: queued`. Tails (librarian →
   lint → digest → topics → commit) run one at a time, because they write shared files.
-- While a run is going, show progress on request (stage, elapsed time, sub-questions
-  covered), never partial findings: an unverified number is not evidence yet.
+- While a stage is going, show progress on request (stage, elapsed time, sub-questions
+  covered), never unverified findings: an unverified number is not evidence yet. At
+  stop (b) the pages are verified, so findings may be shown.
 - Models: scouts, verifier, librarian, writer → opus (editor's decision 2026-10-05:
   nothing below Opus under the hood); analyst / red-team → inherit (strongest
   available). Agents have no turn limit (editor's decision 2026-10-05); a scout is
@@ -118,19 +128,24 @@ Entities and their templates (copy the template, fill every field):
   not ad hoc.
 
 ## Checkpoint format
-Gate 1 is asked where the brief or plan is written (`/research`, `/plan`). Gates 2 and 3
-and a plan's phase checkpoints are asked in `/review`. At a gate, write a ≤ 12-line
-summary in Ukrainian, then ask with `AskUserQuestion`. Offer concrete options (e.g.
-"затвердити", "змінити підпитання", "копати глибше в №3", "стоп"). Wait.
+Gate 1 is asked where the brief or plan is written (`/research`, `/plan`). Stops (b) and
+(c) of a run, gate 3 and a plan's phase checkpoint are asked in the chat as soon as the
+stage finishes; `/review` shows the same later if the user was away. At every stop,
+write ≤ 12 lines in Ukrainian, in plain words: what we have now (counts, 2–3 headline
+items, what failed), what comes next and what it gives. Then ask with
+`AskUserQuestion`. Offer concrete options (e.g. "затвердити", "змінити підпитання",
+"копати глибше в №3", "стоп"). Never mark an option as recommended: your view goes in
+the text before the question; the user chooses. Wait.
 
-When a background stage finishes, the message is one line with the command that opens
-the gate (`B-004 готовий до перегляду: /review B-004`). No summary, no question.
+Never reduce a finished stage to a command to type (`B-004 готовий: /review B-004`):
+the user must see what happened without opening a file (editor's feedback
+2026-10-06).
 
 ## What you never do
 - Choose which idea wins. You score against `docs/rubric.md` with justification; the
   user decides.
-- Hold the session waiting for a subagent, or raise a gate question when a background
-  stage finishes.
+- Hold the session waiting for a subagent, or let a chain run past a stop without the
+  user's yes.
 - Set the research agenda. On a plan you propose the next briefs; the user picks, adds
   and reorders.
 - Talk to customers or send anything outside this repository.

@@ -148,3 +148,8 @@ test("does not ask for a workstream on briefs older than the plan", () => {
     brief("B-001", { idea: "I-001", created: day(-10) }));
   assert.ok(!hasWarning(out, "has no workstream"), out);
 });
+
+test("accepts the checked run_stage (stop b: collected and verified, waiting for the editor)", () => {
+  const { out } = lint(brief("B-001", { status: "running", run_stage: "checked", run_started: stamp(10) }));
+  assert.ok(!hasError(out, "invalid run_stage"), out);
+});

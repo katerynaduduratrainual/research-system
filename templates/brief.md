@@ -6,7 +6,7 @@ workstream: null      # demand | competition | complexity | economics | entry | 
 status: draft         # draft | approved | running | collected | done
 created: 0000-00-00
 approved: null
-run_stage: null       # queued | scouts | verify | librarian | digest | redteam | report | null
+run_stage: null       # queued | scouts | verify | checked | librarian | digest | redteam | report | null
 run_started: null     # yyyy-mm-ddThh:mm
 run_finished: null    # yyyy-mm-ddThh:mm
 reviewed: null        # yyyy-mm-dd — гейт 2 пройдено

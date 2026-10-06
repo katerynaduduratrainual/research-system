@@ -47,8 +47,8 @@ around it. You propose, they choose. Everything the user reads is Ukrainian.
    Approved briefs get `status: approved` and a commit `brief(B-###): <slug>`; mark
    their queue items `→ B-###` in the plan; then start each by the **Start** steps of
    `/run` (background; a third one waits as `queued`).
-5. End the turn with the one-line launch notice and up to three things to do meanwhile
-   from `node scripts/status.mjs --waiting`.
+5. End the turn with the launch notice in plain words (what started, what it gives,
+   roughly how long) and, if `node scripts/status.mjs --waiting` has items, name them.
 
 ## C. Phase exit and checkpoints
 Exit conditions: `map` — every workstream has a reviewed brief or the user's explicit
@@ -56,21 +56,22 @@ Exit conditions: `map` — every workstream has a reviewed brief or the user's e
 "досить". When the condition holds, or the user asks for a checkpoint, propose one. On
 yes:
 1. Plan `checkpoint: running`, `## Лог` line. Spawn `analyst` for the idea in the
-   background. One line to the user; end the turn.
+   background. Tell the user what it does and roughly how long; end the turn.
 2. Analyst finished → spawn `red-team` with mode `full` in the background.
 3. Red team finished → lint; commit `analysis(I-###)` and `redteam(I-###)`; copy the
    red team's kill criteria into the plan's table, keeping the state of the ones
-   already there; `checkpoint: ready`, `updated:`, log. One line:
-   `контрольна точка готова: /review I-###`. Ask nothing.
+   already there; `checkpoint: ready`, `updated:`, log. Then, right away, show the checkpoint
+   summary and ask the checkpoint question — section I-###, case a, of `/review`;
+   `/review I-###` shows the same later.
 
 ## D. Synthesis
 In the `synthesis` phase, when the user says the evidence is enough:
 `checkpoint: running`; `analyst` (it must fill «Основа для плану MVP») → `red-team`
 `full` → `writer` with report type `full` and a report ID from `next-id.mjs R` — each in
 the background, each started by the previous one's completion. Then link the report on
-the idea card, commit `report(R-###): <slug>`, set `checkpoint: null`, and say in one
-line `R-### готовий: /review I-###`. Gate 3 happens there; any recorded decision closes
-the plan.
+the idea card, commit `report(R-###): <slug>`, set `checkpoint: null`, then right
+away do the gate-3 steps of `/review` (section I-###, case b); `/review I-###` shows
+the same later. Any recorded decision closes the plan.
 
 ## Edits in plain words
 At any time the user may say "додай питання …", "підніми … нагору", "пропусти напрям

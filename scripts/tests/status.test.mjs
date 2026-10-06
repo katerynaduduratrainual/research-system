@@ -176,3 +176,13 @@ test("offers no next command for a brief of a parked idea", () => {
     brief("B-001", { status: "collected", reviewed: day(0), idea: "I-001" })]), "Briefs");
   assert.ok(!line(b, "B-001").includes("/plan"), b.join("\n"));
 });
+
+test("lists a brief at stop b (checked) under waiting with the /review command", () => {
+  const w = waiting([brief("B-001", { status: "running", run_stage: "checked", run_started: stamp(30) })]);
+  assert.ok(line(w, "stop b", "B-001", "/review B-001"), w.join("\n"));
+});
+
+test("does not show a checked brief as running", () => {
+  const r = running([brief("B-001", { status: "running", run_stage: "checked", run_started: stamp(30) })]);
+  assert.equal(line(r, "B-001"), undefined);
+});
