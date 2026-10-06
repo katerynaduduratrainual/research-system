@@ -3170,3 +3170,31 @@ The push goes through the permission prompt; the user confirms it. Report the co
 - **Spec coverage.** §3 entities → Tasks 3 (templates) and 4 (lint); §4–5 tracks → Tasks 9 (playbooks) and 11 (docs); §6 gates → Task 10 (AGENTS.md) and the stop steps in Task 9; §7 agents → Task 8; §8 playbooks → Task 9; §9 scripts → Tasks 4–7 (`next-id.mjs` already handles any one-letter prefix, verified in Task 12); §10 files and adapters → Tasks 2, 8, 9, 10; §11 team → Task 10 (Team section) and Task 11; §12 cleanup → Task 1; §13 verification → Task 12; §14 deferred → not planned, by design.
 - **Interfaces.** `under(pages, dir)` (Task 4) is used by Tasks 5–7; `run(script, root, args, input)` (Task 4) by Task 7; fixture builders by Tasks 5–7; agent task grammar (Task 8) by Task 9; playbook step numbers (Task 9) by Task 10's table and Task 11's docs.
 - **Known judgment calls.** Lint treats a missing `author` on a non-draft brief as an error (spec §9 lists it among checks). `--fix` drops trailing comments on the lines it rewrites. The "collected brief not folded" warning fires only when the brief has evidence pages.
+
+## Після виконання (2026-10-06)
+
+План виконано на `main` комітами `adf5298..f34d621`; тестова база під тегом
+`v0-test-base`. Сухий прогін `/explore` до гейту 1 пройшов: lint чистий, `--fix`
+заповнює `briefs:`, status показує гейт і `queue 0`, hook блокує звіт без критики і
+пропускає конспект. Symlink'и на `agents/` (каталогом) і на playbook'и (файлами)
+Claude Code читає.
+
+Залишено на наступний цикл, за фінальним рев'ю:
+- `playbooks/explore.md`, крок 3: тригер зупинки вступу не перевіряє `checkpoint`;
+  поки writer пише конспект, повторний `/explore D-###` запропонує зупинку ще раз.
+  Додати умову «і `checkpoint` порожній».
+- `playbooks/explore.md`, крок 4: після «змінити межі» на зупинці вступу напрям має
+  конспект, але правила наступної пропозиції немає; вихід лише словом «карта».
+  Додати пропозицію «карта або доповнюючий brief».
+- `playbooks/decide.md`: `promote`/`drop` скидають `checkpoint` без перевірки, що він
+  `ready`. Скидати лише з `ready`.
+- Специфікацію узгодити з playbook'ами: §4.1/§8.1 тригер зупинки вступу; §8.5 lint і
+  index перед комітом; §3.6/§3.8 проти §11.2 поле `author` (агент на звітах і критиці,
+  редактор на brief'ах і рішеннях); §4.4 проти §8.1 brief'и напряму у фазі кандидатів;
+  правило 3 про `raw/` не стосується `raw/README.md`.
+- Дрібні: `scripts/index.mjs` не екранує `|` у клітинках; `scripts/_lib.mjs` ROOT
+  через `URL.pathname` ламається на шляху з пробілами (`fileURLToPath`); lint не
+  валідує `id` brief'ів і звітів; hook не ловить `Edit` (lint ловить після);
+  `docs/vision.md` цитує B-004, який живе лише під тегом; нумерація кроків у
+  `docs/workflow.md` (1–8) не збігається з playbook'ом research (1–9).
+- Перевірити у свіжій сесії, що `CLAUDE.md` імпортує `AGENTS.md` (`@AGENTS.md`).
