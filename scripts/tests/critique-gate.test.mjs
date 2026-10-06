@@ -71,3 +71,29 @@ test("blocks a domain report whose critique date is unreadable", () => {
   assert.equal(code, 2);
   assert.match(out, /unreadable date/);
 });
+
+test("accepts a quoted target in the frontmatter", () => {
+  const root = makeWiki(domain("D-001"), critique("D-001"));
+  assert.equal(gate(root, "wiki/reports/R-001-x.md", report('"D-001"', "domain")).code, 0);
+});
+
+test("a body line starting with type: is not frontmatter", () => {
+  const root = makeWiki(domain("D-001"));
+  assert.equal(gate(root, "wiki/reports/R-001-x.md", "---\nid: R-001\ntarget: D-001\n---\ntype: primer\n").code, 2);
+});
+
+test("malformed stdin and a non-string file_path are ignored", () => {
+  const root = makeWiki();
+  const a = run("hooks/critique-gate.mjs", root, [], "null");
+  assert.equal(a.code, 0);
+  assert.doesNotMatch(a.out, /TypeError|at /);
+  const b = run("hooks/critique-gate.mjs", root, [], JSON.stringify({ tool_input: { file_path: 42 } }));
+  assert.equal(b.code, 0);
+});
+
+test("blocks a report whose target page does not exist", () => {
+  const root = makeWiki();
+  const { code, out } = gate(root, "wiki/reports/R-001-x.md", report("D-009", "domain"));
+  assert.equal(code, 2);
+  assert.match(out, /unknown target D-009/);
+});

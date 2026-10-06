@@ -4,21 +4,21 @@
 // Exit 0 = allow, exit 2 = block (stderr is shown to the model).
 import { readFileSync, existsSync } from "node:fs";
 import { resolve, relative } from "node:path";
-import { ROOT, loadWiki } from "../_lib.mjs";
+import { ROOT, loadWiki, parseFrontmatter } from "../_lib.mjs";
 
 let data = {};
 try { data = JSON.parse(readFileSync(0, "utf8") || "{}"); } catch {}
-const ti = data.tool_input ?? {};
+const ti = (data && typeof data === "object" ? data.tool_input : null) ?? {};
 const fp = ti.file_path ?? ti.path ?? "";
-if (!fp) process.exit(0);
+if (typeof fp !== "string" || !fp) process.exit(0);
 const abs = resolve(ROOT, fp);
 const rel = relative(ROOT, abs).replace(/\\/g, "/");
 if (!rel.startsWith("wiki/reports/") || !rel.endsWith(".md")) process.exit(0);
 
 let text = typeof ti.content === "string" ? ti.content : "";
 if (!text && existsSync(abs)) text = readFileSync(abs, "utf8");
-const field = k => (new RegExp(`^${k}:\\s*(\\S+)`, "m").exec(text) ?? [])[1];
-const target = field("target"), type = field("type");
+const { fm } = parseFrontmatter(text);
+const target = fm?.target, type = fm?.type;
 const block = m => { console.error(`critique-gate: ${m}`); process.exit(2); };
 if (!target) block("no `target:` in the report frontmatter — add it before writing the report.");
 if (!type) block("no `type:` in the report frontmatter — primer | domain | final.");
@@ -28,7 +28,8 @@ if (type !== "domain" && type !== "final") block(`unknown report type "${type}" 
 const pages = loadWiki();
 const tp = pages.find(p => p.fm?.id === target);
 const dir = { domain: "domains", final: "ideas" }[type];
-if (tp && !tp.rel.startsWith(`wiki/${dir}/`)) block(`report type "${type}" does not match target ${target}`);
+if (!tp) block(`unknown target ${target}`);
+if (!tp.rel.startsWith(`wiki/${dir}/`)) block(`report type "${type}" does not match target ${target}`);
 const crit = pages.find(p => p.rel.startsWith("wiki/critique/") && p.fm?.target === target);
 if (!crit) block(`wiki/critique/${target}-critique.md is missing — run the critic (attack ${target}) before writing a ${type} report (AGENTS.md rule 4).`);
 const date = v => (v ? Date.parse(String(v).slice(0, 10)) : NaN);
