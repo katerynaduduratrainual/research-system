@@ -24,11 +24,12 @@ log line; after each one tell the user in one sentence what started and end the 
 ## Domain in phase map
 1. `checkpoint: running`, log. Spawn `critic` with `attack D-###`. Say what started
    (≈ 15–25 minutes). End the turn.
-2. Critic finished → if the critic wrote new `E-D-###-C-*` pages and any of them has
-   a digit in `claim` and `verification: null`, spawn `critic` with
-   `verify <those IDs> <today>` in the background first, log it, and spawn the writer
-   when that verify finishes; otherwise spawn the writer at once. The writer gets
-   `report D-### R-###`. One sentence to the user.
+2. Critic finished (or the verify below finished) → if the critic wrote new
+   `E-D###-C-*` pages (e.g. `E-D001-C-01`) and any of them has a digit in `claim` and
+   `verification: null`, spawn `critic` with `verify <those IDs> <today>` in the
+   background first, log it, and spawn the writer when that verify finishes;
+   otherwise spawn the writer at once. The writer gets `report D-### R-###`. One
+   sentence to the user.
 3. Writer finished → lint --fix, index, commit `report(R-###): domain D-###`,
    `checkpoint: ready`, log.
 4. Show ≤ 12 lines: what we know per layer, where the money is, the critic's three
@@ -46,28 +47,32 @@ log line; after each one tell the user in one sentence what started and end the 
    `domain(D-###): candidates`.
 2. `checkpoint: running`, log. Spawn `critic` with `attack D-###` (it sees the
    candidates). Say what started. End the turn.
-3. Critic finished → if the critic wrote new `E-D-###-C-*` pages and any of them has
-   a digit in `claim` and `verification: null`, spawn `critic` with
-   `verify <those IDs> <today>` in the background first, log it, and spawn the writer
-   when that verify finishes; otherwise spawn the writer at once. The writer gets
-   `report D-### R-###`. One sentence to the user.
+3. Critic finished (or the verify below finished) → if the critic wrote new
+   `E-D###-C-*` pages and any of them has a digit in `claim` and
+   `verification: null`, spawn `critic` with `verify <those IDs> <today>` in the
+   background first, log it, and spawn the writer when that verify finishes;
+   otherwise spawn the writer at once. The writer gets `report D-### R-###`. One
+   sentence to the user.
 4. Writer finished → lint --fix, index; copy the critic's objection per candidate into
    the «Заперечення критика» column; commit `report(R-###): domain D-###`,
    `checkpoint: ready`, log.
 5. Show the candidates with objections in ≤ 12 lines. Ask: promote <n> / drop <n> /
-   ще копати / закрити. Each choice goes through `/decide`; `checkpoint: null`.
+   ще копати / закрити. promote / drop / закрити go through `/decide`; «ще копати» →
+   `checkpoint: null`, phase unchanged, continue at step 4 of `/explore D-###` (nothing
+   is recorded).
 
 ## Idea (synthesis)
 1. `checkpoint: running`, log. Spawn `writer` with `analysis I-###`. Say what started.
    End the turn.
-2. Writer finished → spawn `critic` with `attack I-###`.
-3. Critic finished → if the critic wrote new `E-I-###-C-*` pages and any of them has
-   a digit in `claim` and `verification: null`, spawn `critic` with
-   `verify <those IDs> <today>` in the background first, log it, and spawn the writer
-   when that verify finishes; otherwise spawn the writer at once. The writer gets
-   `report I-### R-###`. One sentence to the user.
-4. Writer finished → lint --fix, index, commit `report(R-###): final I-###`,
-   `checkpoint: ready`, log.
+2. Writer finished (analysis) → spawn `critic` with `attack I-###`.
+3. Critic finished (or the verify below finished) → if the critic wrote new
+   `E-I###-C-*` pages and any of them has a digit in `claim` and
+   `verification: null`, spawn `critic` with `verify <those IDs> <today>` in the
+   background first, log it, and spawn the writer when that verify finishes;
+   otherwise spawn the writer at once. The writer gets `report I-### R-###`. One
+   sentence to the user.
+4. Writer finished (final report) → lint --fix, index, commit
+   `report(R-###): final I-###`, `checkpoint: ready`, log.
 5. **Gate 3.** Show the three-sentence answer, the confidence and what set it, the
    total score, the critic's top risk, the «План MVP» table in brief. Ask: advance /
    park / kill / ще досліджувати. advance, park, kill → `/decide I-### …` with the
@@ -75,9 +80,10 @@ log line; after each one tell the user in one sentence what started and end the 
    `/explore I-###`.
 
 ## Critique only
-On "атакуй карту" / "атакуй ідею": steps 1–2 of the matching chain without the
-writer; show the critic's return in the chat; `checkpoint: null`; commit
-`critique(<id>): <date>`. No report is written.
+On "атакуй карту" / "атакуй ідею": `checkpoint: running`, log, spawn `critic` with
+`attack <id>`; when it finishes, run the verify for its new C-pages if needed (as in
+step 2 of the map chain); do not spawn the writer. Show the critic's return in the
+chat; `checkpoint: null`; commit `critique(<id>): <date>`. No report is written.
 
 If the writer refuses (precondition not met), show its one-line reason and stop with
 `checkpoint: null`.

@@ -22,6 +22,7 @@ AGENTS.md.
    domain, or a new domain).
 
 ## B-###
+- `status: draft` → gate 1: step 3 of `playbooks/research.md`.
 - `run_stage: checked` → the stop after collection: step 6 of `playbooks/research.md`.
 - `status: collected`, `reviewed` null, `run_stage` null → gate 2: steps 8–9 of research.
 - Already `reviewed` → say when, and ask whether to open it again.

@@ -34,10 +34,10 @@ unverified findings.
    set `run_stage: queued`, tell the user which brief it waits for, and stop. Otherwise
    set `status: running`, `run_stage: scouts`, `run_started`, log. Spawn one `scout` per
    sub-question, all in this turn, all in the background; each task prompt follows the
-   Delegation block of AGENTS.md and names the evidence prefix `E-<brief>-<sq>-`. Tell
-   the user what started (brief, number of scouts, what each looks for, 5–15 minutes per
-   scout plus verification) and that the next stop is after collection and
-   verification. End the turn.
+   Delegation block of AGENTS.md and names the evidence prefix `E-B###-<sq>-` (the
+   brief ID without its hyphen, e.g. `E-B004-2-`). Tell the user what started (brief,
+   number of scouts, what each looks for, 5–15 minutes per scout plus verification)
+   and that the next stop is after collection and verification. End the turn.
 5. **A scout finished** → spawn `critic` with `verify B-### <sq> <today>` at once, in
    the background; do not wait for the other scouts. On the first verify set
    `run_stage: verify`, log. A scout that stopped without a report: resume it once with
@@ -92,7 +92,7 @@ unverified findings.
 - `run_stage: checked` → repeat the stop after collection (step 6).
 - `status: collected`, `reviewed` null → repeat gate 2 (step 8).
 - `status: running`, any other stage → **resume**: for each sub-question check whether
-  evidence pages `E-<brief>-<sq>-*` exist and whether their `verification:` is filled.
+  evidence pages `E-B###-<sq>-*` exist and whether their `verification:` is filled.
   Spawn scouts only for sub-questions without evidence and verifies only for
   sub-questions with unverified evidence, then continue from the matching step. Log
   "відновлено".
