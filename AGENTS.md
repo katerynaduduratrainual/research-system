@@ -58,7 +58,10 @@ to, and the topic pages under `wiki/topics/` that touch it.
    end of `/review`, `/decide`, and after gate 2 of a run, at a domain phase stop, or when the editor asks. Push
    is deliberately not on the allow list; every push goes through the permission prompt
    and the editor confirms it. Never bypass or pre-approve it.
-10. **Only `/decide` writes `docs/decision-log.md`.**
+10. **Only `/decide` writes `docs/decision-log.md`.** A choice the editor makes at a
+   stop is their decision: the lead follows the steps of `playbooks/decide.md` with
+   that action, asking for the one-sentence reason with AskUserQuestion if it was not
+   given. The editor never has to type the command.
 
 ## Wiki schema
 | Entity | Path | ID | Template |
@@ -146,7 +149,7 @@ plain words as readily as from its command.
 |---|---|---|
 | `playbooks/explore.md` | `/explore` | "вивчаємо напрям …", "де ми по D-001", "що далі по ідеї" |
 | `playbooks/research.md` | `/research` | "дослідь питання …", "продовж B-007" |
-| `playbooks/decide.md` | `/decide` | only the command |
+| `playbooks/decide.md` | `/decide` | the command, or a choice at a stop |
 | `playbooks/review.md` | `/review` | "що чекає на мене", "показуй B-004" |
 | `playbooks/checkpoint.md` | — | "так" to a proposed phase stop; "синтез"; "зроби звіт"; "атакуй карту" |
 | `playbooks/ingest.md` | — | a link or file with "ось джерело", "поклади в raw" |
@@ -161,8 +164,9 @@ opening a file.
 
 ## Team
 - `owner` on a domain or idea approves its gates. Others may write briefs (`draft`)
-  and run approved ones. `author` on briefs, reports, critiques and decision entries
-  says who was the editor of that step.
+  and run approved ones. `author` on briefs and decision entries says who was the
+  editor of that step; on reports and critiques it names the agent (`writer`,
+  `critic`).
 - Create new entities on an up-to-date `main`; lint reports duplicate IDs as errors.
 - `wiki/index.md` is generated; `wiki/open-questions.md` and `docs/decision-log.md`
   are append-only.

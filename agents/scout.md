@@ -50,8 +50,11 @@ best you can and list the gap in your return.
      primary source that may disappear (reports, PDFs, official stats), with the exact
      header from `raw/README.md` and the text as is. Never edit raw/.
 4. For every claim worth keeping, write one evidence page from `templates/evidence.md`:
-   `wiki/evidence/E-<brief>-<sq>-<nn>.md`, numbering from 01 within your sub-question.
-   One claim per page. Fields you must fill: `claim`, `type`, `source`, `source_grade`,
+   `wiki/evidence/E-B###-<sq>-<nn>.md` (the brief ID without its hyphen, e.g.
+   `E-B004-2-01`), numbering from 01 within your sub-question. If pages
+   `E-B###-<sq>-*` already exist for your sub-question, number on from the highest
+   existing one; never overwrite a page. One claim per page; delete the template
+   sections that do not apply to the page. Fields you must fill: `claim`, `type`, `source`, `source_grade`,
    `confidence`, `date_of_info`, `brief`, `subquestion`. `domain:` and `idea:` may stay
    `null`: they are derived from the brief. Set `type: estimate`
    and describe the method whenever a number is derived or approximate.

@@ -54,6 +54,12 @@ test("shows the domain line with phase, week, confidence, queue and checkpoint",
   assert.match(out, /D-001 phase stop running \(writer primer\)/);
 });
 
+test("the queue count skips template placeholders", () => {
+  const body = "\n### 1. Основи\n- **Черга питань:**\n  1. [ ] …\n  2. [ ] real question\n  3. [ ] … _(походження: редактор | критик | digest B-###)_\n";
+  const { out } = status(domain("D-001", { phase: "intro" }, body));
+  assert.match(out, /D-001 .* · queue 1 · /);
+});
+
 test("shows briefs with their next step in words", () => {
   const { out } = status(brief("B-001", { status: "approved" }), brief("B-002", { status: "collected", reviewed: day(0) }));
   assert.match(out, /B-001 \[approved\] .* → next: start or resume: \/research B-001/);

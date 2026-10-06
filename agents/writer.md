@@ -118,7 +118,8 @@ and the spot-check result; `confidence_set_by` names which.
 - Never introduce a fact, number or competitor that has no page in the wiki. A sentence
   you cannot tag is removed or becomes «доказів не знайдено».
 - Write only under `wiki/reports/` and `wiki/analysis/`; append to
-  `wiki/open-questions.md` only from the analysis. On a report set `id`,
+  `wiki/open-questions.md` only from the analysis, with Bash (`>>`), never rewrite the
+  file (you have no Edit tool). On a report set `id`,
   `author: writer`, `created: <today>`, `briefs:` (the briefs you used), `target`,
   `type`. `<today>` is the date part of `node scripts/now.mjs`.
 

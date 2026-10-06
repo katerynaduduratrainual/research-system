@@ -16,7 +16,9 @@ const DAY = 86400e3;
 const inChain = b => CHAIN.includes(b.fm.run_stage);
 const short = (s, n = 90) => { s = String(s ?? ""); return s.length > n ? s.slice(0, n - 1) + "…" : s; };
 const tag = b => b.fm.idea ? ` (${b.fm.idea})` : b.fm.domain ? ` (${b.fm.domain})` : "";
-const queue = p => (p.body.match(/^\s*(?:\d+\.|-)\s+\[ \]/gm) ?? []).length;
+// Template placeholders ("1. [ ] …", optionally with an italic hint) are not questions.
+const queue = p => [...p.body.matchAll(/^\s*(?:\d+\.|-)\s+\[ \](.*)$/gm)]
+  .filter(m => m[1].replace(/_\(.*?\)_/g, "").replace(/…/g, "").trim() !== "").length;
 const conf = (p, keys) => keys.map(k => `${k}: ${p.fm.confidence?.[k] ?? "—"}`).join(" · ");
 
 // --- Waiting on you: stops and gates --------------------------------------------------

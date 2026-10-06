@@ -16,9 +16,14 @@ Optional: a domain, idea or brief ID to file the evidence against.
    (the user's own notes: grade B, `type: primary`, `author` = the user).
 3. Extract every claim worth keeping — usually 3–10 — as evidence pages from
    `templates/evidence.md`. IDs: `node scripts/next-id.mjs E-ING-<yyyymmdd>`. Fill
-   `domain:` / `idea:` / `brief:` when given (`brief: null` otherwise). Contradictions
+   `domain:` / `idea:` / `brief:` when given (`brief: null` otherwise). If the editor
+   named no domain, idea or brief and exactly one domain is `active`, file the evidence
+   under it (`domain:`); otherwise ask with AskUserQuestion before writing pages (lint
+   rejects evidence without brief, domain or idea). Contradictions
    with existing evidence → `contradicts:` on both pages.
-4. Spawn `critic` with `verify <E-IDs…> <today>` in the background. Tell the user in
+4. Before spawning, append a `## Лог` line to the domain or idea page («ingest S-… ·
+   verify running», with the E-IDs) so the completion notification can be matched from
+   the file. Spawn `critic` with `verify <E-IDs…> <today>` in the background. Tell the user in
    one line: source ID and grade, how many evidence pages, verification running. End
    the turn.
 5. Critic finished → fold the verified claims into the relevant topic pages and into

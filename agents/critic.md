@@ -20,7 +20,8 @@ or a list of evidence IDs and today's date (`verify <E-ID> <E-ID> … <today>`).
 
 ### Procedure
 1. List the pages. For `verify B-### <sq>`:
-   `grep -l "^subquestion: <sq>" wiki/evidence/E-<brief>-*.md`; check every page whose
+   `grep -l "^subquestion: <sq>" wiki/evidence/E-B###-<sq>-*.md` (the brief ID without
+   its hyphen, e.g. `E-B004-2-*`); check every page whose
    `claim` contains a digit or whose `confidence` is `high`, and of the remaining pages
    every third one. For `verify <E-ID> …`: check every listed ID, no sampling. For `type: absence` pages only
    confirm that `## Метод пошуку` lists real queries.

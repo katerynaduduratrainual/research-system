@@ -35,14 +35,16 @@ after the focus phase (rule 6).
    confidence and the queue length, what is running, what waits on the user.
 2. If something of this domain waits on the user, say so first and open it by
    `playbooks/review.md`. The user may still line up more work.
-3. If the phase exit condition holds — intro: the primer is written and the user has
-   read it; map: every layer 2–5 has a reviewed brief or a logged «пропустити»; focus:
+3. If the phase stop is due — intro: the intro brief (`layer: fundamentals`) has
+   `reviewed` and the domain has no `primer` report yet → propose the intro stop (the
+   primer; the user's «карта» at that stop is the exit from the phase); map: every layer 2–5 has a reviewed brief or a logged «пропустити»; focus:
    the user said «досить» or the focus queues are empty — propose the phase stop in one
    sentence. On yes, follow `playbooks/checkpoint.md`.
 4. Otherwise propose 1–3 next briefs by the phase rule: intro — none until the primer;
    map — one broad brief per layer 2–5 without a reviewed brief; focus — from the focus
    queues (segments, specific problems, who tried and what happened, costs, real
-   prices); candidates — only idea-level work. For each: layer, the question, why now.
+   prices); candidates — domain briefs are still allowed (new candidates may appear at a
+   later stop); idea-level work goes through `/explore I-###`. For each: layer, the question, why now.
    Ask which to prepare (AskUserQuestion, multiSelect), or take the user's own question
    instead. Skip this step when the domain is `paused`.
 5. For each chosen one, write the brief by steps 1–2 of research with `domain:` and
@@ -61,7 +63,10 @@ preset: three sub-questions — попит (who has the problem, how they solve 
 evidence that they pay), конкуренти й альтернативи (direct, indirect, do nothing;
 prices seen), здійсненність і відповідність (what it takes to build and launch,
 regulation, fit with `docs/context.md`) — ≤ 8 searches and ≤ 6 sources each. Reuse the
-domain's evidence through «Що вже є у wiki». When the queues are empty or
+domain's evidence through «Що вже є у wiki». Idea briefs carry `idea:` only (not
+`domain:`), so they do not enter the domain's critique-freshness rule; the quick-check
+preset uses `layer: null` (cross-cutting; lint's warning is expected) and gate 2 then
+updates every workstream it touched. When the queues are empty or
 `target_decision` is within two weeks, propose synthesis; on yes follow the idea chain
 of `playbooks/checkpoint.md`.
 

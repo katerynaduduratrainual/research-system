@@ -25,8 +25,9 @@ is not recorded: if the reason is missing, ask for it with AskUserQuestion.
    and `Що б змінило рішення: визначить дослідження`.
 2. Update the idea card: `decision:`, `decided:`, `stage:` (advance → `validation`;
    park → `parked`; kill → `killed`), `checkpoint: null`, `updated:`, a `## Лог` line.
-3. Commit `decide(I-###): <decision>`. Run `node scripts/index.mjs`; commit
-   `index: after decide(I-###)` if it changed. `git push`. Confirm in one line; no
+3. Run `node scripts/lint.mjs --fix` and `node scripts/index.mjs`, then commit
+   `decide(I-###): <decision>` (the card, the log and `wiki/index.md` together).
+   `git push`. Confirm in one line; no
    commentary on the decision.
 
 ## Domain
@@ -38,9 +39,9 @@ is not recorded: if the reason is missing, ask for it with AskUserQuestion.
   candidate row, «Звідки ідея» = candidate n of D-###, `domain: D-###`, `owner` = the
   domain's owner, `author` = the user, `stage: active`, kill criteria from the critic's
   objections to this candidate, `created`, `updated`. Set the candidate's state to
-  `ідея I-###`. On the first promote: `phase: candidates`. Commit
+  `ідея I-###`. On the first promote: `phase: candidates`. `checkpoint: null`. Commit
   `idea(I-###): promoted from D-### candidate n`.
-- `D-### drop <n> "<reason>"`: the candidate's state → `відхилено`.
+- `D-### drop <n> "<reason>"`: the candidate's state → `відхилено`; `checkpoint: null`.
 - `D-### pause|continue "<reason>"`: `status: paused` / `status: active`.
 - `D-### close "<reason>"`: `status: closed`, `checkpoint: null`.
 
@@ -52,7 +53,8 @@ Each domain action appends
 - На основі: [[R-###]] (звіт) або «звіту немає — рішення редактора»; критик: <top objection>
 - Що б змінило рішення: <from the report or critique, or —>
 ```
-then sets `updated:` and a `## Лог` line on the domain page, commits
-`decide(D-###): <action>`, runs `node scripts/lint.mjs --fix` and `node scripts/index.mjs`,
-and does `git push`. Confirm in one line; after a promote add the next step in words
+then sets `updated:` and a `## Лог` line on the domain page, runs
+`node scripts/lint.mjs --fix` and `node scripts/index.mjs`, commits
+`decide(D-###): <action>` (the page, the log, `candidates:` and `wiki/index.md`
+together), and does `git push`. Confirm in one line; after a promote add the next step in words
 (the idea's quick check through `/explore I-###`).

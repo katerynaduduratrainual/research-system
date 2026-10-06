@@ -54,7 +54,10 @@ unverified findings.
    - продовжити → step 7.
    - перезапустити / додати → write the sub-question(s) into the brief under
      `## Доповнюючі підпитання (<date>)`, get a one-word confirmation,
-     `run_stage: scouts`, log, spawn those scouts; the chain returns to this stop.
+     `run_stage: scouts`, log, spawn those scouts; the chain returns to this stop. A
+     restarted scout keeps its sub-question number and continues the numbering;
+     supplementary sub-questions under `## Доповнюючі підпитання (<date>)` continue the
+     numbering of the brief (`### 6.`, `### 7.` …) so `status.mjs` counts them.
    - стоп → leave `run_stage: checked`; `/review B-###` reopens it.
 7. **Tail** — one brief at a time: if another brief is at `run_stage: digest`, wait for
    it to reach `collected`. Set `run_stage: digest`, log. Run `node scripts/lint.mjs --fix`
@@ -81,7 +84,9 @@ unverified findings.
    add a `## Лог` line. Run `node scripts/lint.mjs --fix` and `node scripts/index.mjs`.
    Commit `review(B-###): gate 2`. `git push` (the permission prompt is the user's
    confirmation). If a brief has `run_stage: queued`, start the oldest from step 4 and
-   say so. Then say in one sentence what comes next for the domain or idea.
+   say so. Then say in one sentence what comes next for the domain or idea. If this
+   brief is the intro brief of a domain in `phase: intro`, propose the intro stop
+   (primer) in the same turn; on yes follow `playbooks/checkpoint.md`.
    - копати глибше / додати підпитання → as in step 6; the chain runs for the new
      sub-questions only and `reviewed` goes back to `null`.
    - стоп → change nothing.

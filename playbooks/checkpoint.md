@@ -5,10 +5,13 @@ description: The critic-then-writer chain for a domain phase stop or an idea syn
 
 Target: a domain ID or an idea ID. Entered after the user's "yes" to a proposed phase
 stop, or on words like "синтез", "зроби звіт", "атакуй карту", "атакуй ідею".
-Precondition: the target has at least one brief with `reviewed`; otherwise say what is
-missing and stop. Common rules: AGENTS.md. Report IDs: `node scripts/next-id.mjs R`.
+Precondition: the target has at least one brief with `reviewed` (for an idea: of the
+idea or of its domain); otherwise say what is missing and stop. Common rules: AGENTS.md. Report IDs: `node scripts/next-id.mjs R`.
 Every spawn is in the background; before each one write `checkpoint: running` and a
 log line; after each one tell the user in one sentence what started and end the turn.
+A choice the editor makes at a stop is their decision: the lead follows the steps of
+`playbooks/decide.md` with that action, asking for the one-sentence reason with
+AskUserQuestion if it was not given. The editor never has to type the command.
 
 ## Domain in phase intro
 1. `checkpoint: running`, log. Spawn `writer` with `primer D-### R-###`. Say what
@@ -58,8 +61,9 @@ log line; after each one tell the user in one sentence what started and end the 
    `checkpoint: ready`, log.
 5. Show the candidates with objections in ≤ 12 lines. Ask: promote <n> / drop <n> /
    ще копати / закрити. promote / drop / закрити go through `/decide`; «ще копати» →
-   `checkpoint: null`, phase unchanged, continue at step 4 of `/explore D-###` (nothing
-   is recorded).
+   phase unchanged, continue at step 4 of `/explore D-###` (nothing is recorded).
+   Once every choice made at this stop has gone through `/decide` (or «ще копати» was
+   chosen), set `checkpoint: null`, log, commit `domain(D-###): stop answered`.
 
 ## Idea (synthesis)
 1. `checkpoint: running`, log. Spawn `writer` with `analysis I-###`. Say what started.
