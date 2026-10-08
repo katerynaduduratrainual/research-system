@@ -1,0 +1,24 @@
+---
+id: S-16bb6e6e
+url: "https://lenovopress.lenovo.com/lp2368-on-premise-vs-cloud-generative-ai-total-cost-of-ownership-2026-edition"
+title: "On-Premise vs Cloud: Generative AI Total Cost of Ownership (2026 Edition)"
+publisher: "Lenovo Press"
+author: "Sachin Gopal Wani, David Ellison, Jarrett Upton"
+published: "2026-07-24"
+accessed: 2026-10-08
+accessed_via: direct
+type: vendor
+grade: B
+raw: raw/2026-10-08-lenovo-lp2368-genai-tco-2026.md
+---
+
+# On-Premise vs Cloud: Generative AI Total Cost of Ownership (2026 Edition)
+
+## Що це
+Документ Lenovo Press LP2368 (16 сторінок; перша публікація 04.02.2026, оновлено 24.07.2026) для CIO й архітекторів інфраструктури: порівняння вартості володіння серверами Lenovo ThinkSystem з GPU (2x RTX PRO 6000, 4x L40S, 8x H200, 8x B200, 8x B300) і оренди хмарних інстансів. Містить ціни продажу конфігурацій станом на 15.06.2026, ціни хмар на 15.07.2026, таблицю пропускної здатності за MLPerf Server Inference v5.0/v5.1 і правила оцінки пам'яті під модель.
+
+## Чому такий grade
+Офіційний документ виробника з цінами на власні продукти — за правилами B щодо цін і характеристик. Водночас це маркетинговий документ продавця on-prem заліза: висновки про окупність, порівняння з хмарою і таблиця швидкостей — твердження виробника (рівень C, «самозаявлено»); припущення розрахунків (100% завантаження, без вартості персоналу) на користь on-prem.
+
+## Log
+- 2026-10-08 — створено (скаут B-003/4)
