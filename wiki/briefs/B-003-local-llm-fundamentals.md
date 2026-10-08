@@ -192,6 +192,7 @@ _(дописує лід за playbook'ом research на кожному кроц
 - 2026-10-08 11:45 · verify · verify B-003 2 завершено: 16 ok, 3 inexact (E-B003-2-02, -05, -13), 0 failed; confidence знижено на E-B003-2-02 і E-B003-2-05 (medium → low); оцінки скаута E-B003-2-08 і -11 арифметично правильні
 - 2026-10-08 11:51 · verify · verify B-003 1 завершено: 15 ok, 2 inexact (E-B003-1-01, -10), 0 failed; confidence знижено на E-B003-1-01 (high → medium) і E-B003-1-10 (medium → low); відкрите питання про grade блог-анонсів постачальників (S-a381d43c, S-e4b5d73b, S-9cf4cf0a, S-a0f01b05): B чи C
 - 2026-10-08 12:04 · verify · verify B-003 4 завершено: 28 ok, 3 inexact (E-B003-4-09, -10, -14), 0 failed; confidence знижено на E-B003-4-09 і -10 (medium → low) та E-B003-4-14 (high → medium); grade E-B003-4-24 знижено B → C (швидкість — заява виробника); відкрите питання про grade E-B003-4-25…27 і S-99e5947a
+- 2026-10-08 12:06 · verify · verify B-003 5 завершено: 24 ok, 0 inexact, 0 failed; confidence не знижено; застереження критика до формулювань E-B003-5-08, -12, -15, -17
 
 ## Digest
 _(заповнює лід на кроці 7 playbook'у research)_
