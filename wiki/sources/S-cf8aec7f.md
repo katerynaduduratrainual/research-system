@@ -4,7 +4,7 @@ url: "https://docs.tabnine.com/main/administering-tabnine/private-installation"
 title: "Private Installation"
 publisher: "Tabnine (офіційна документація)"
 author: "Tabnine"
-published: "невідомо"
+published: "2026-02-17"   # last updated, за сторінкою
 accessed: 2026-10-08
 accessed_via: direct
 type: vendor
@@ -29,3 +29,4 @@ B: офіційна документація постачальника про �
 
 ## Log
 - 2026-10-08 — створено (скаут B-003/3)
+- 2026-10-08 — критик (verify B-003/3): на сторінці є позначка «Last updated» з машинною датою 2026-02-17; `published` виправлено з «невідомо». Фраза в «Що це» про відсутність позначки застаріла. URL перенаправляє на `…/administering-tabnine/managing-your-team` (canonical), зміст той самий — «Private Installation».
