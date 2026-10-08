@@ -5,11 +5,11 @@ domain: D-003
 idea: null
 layer: fundamentals
 author: "Valentyn Dmytriuk"
-status: approved
+status: running
 created: 2026-10-08
 approved: 2026-10-08
-run_stage: null
-run_started: null
+run_stage: scouts
+run_started: 2026-10-08T10:56
 run_finished: null
 reviewed: null
 budget:
@@ -180,6 +180,7 @@ A/B або оцінкою з методом для кожної з двох фо
 _(дописує лід за playbook'ом research на кожному кроці: `- <yyyy-mm-dd hh:mm> · <крок> · <що сталося>`)_
 - 2026-10-08 10:50 · draft · brief написано, гейт 1
 - 2026-10-08 10:58 · approved · редактор затвердив brief без змін (гейт 1); запуск — усі шість скаутів одразу
+- 2026-10-08 10:56 · scouts · запущено 6 скаутів у фоні (підпитання 1–6), усі на Opus
 
 ## Digest
 _(заповнює лід на кроці 7 playbook'у research)_
