@@ -22,3 +22,4 @@ raw: raw/2026-10-08-unlp-2026-ukrainian-proficiency-benchmark.md
 
 ## Log
 - 2026-10-08 — створено (скаут B-003/4)
+- 2026-10-08 — критик (verify B-003/4): grade A підтверджено — том «Proceedings of the Fifth Ukrainian Natural Language Processing Conference (UNLP 2026)», видавець ACL, травень 2026, Львів; за закликом до подання на unlp.org.ua кожну роботу рецензують щонайменше три члени програмного комітету, рецензування подвійне сліпе. У «Що це» написано «сторінки 122 і далі», а в ACL Anthology — с. 121–135; текст сторінки критик не редагує — виправити лідові.
