@@ -5,11 +5,11 @@ domain: D-001
 idea: null
 layer: fundamentals
 author: "Katia"
-status: approved
+status: running
 created: 2026-10-09
 approved: 2026-10-09
-run_stage: null
-run_started: null
+run_stage: scouts
+run_started: 2026-10-09T15:16
 run_finished: null
 reviewed: null
 budget:
@@ -132,6 +132,7 @@ Brief закрито, коли по кожному підпитанню є що�
 ## Журнал прогону
 - 2026-10-09 15:10 · draft · brief створено
 - 2026-10-09 15:16 · approved · гейт 1 пройдено
+- 2026-10-09 15:16 · scouts · запущено 6 скаутів (підпитання 1–6)
 
 ## Digest
 _(заповнює лід на кроці 7 playbook'у research)_
