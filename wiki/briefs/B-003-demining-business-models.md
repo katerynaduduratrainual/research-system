@@ -8,7 +8,7 @@ author: "Katia"
 status: running
 created: 2026-10-09
 approved: 2026-10-09
-run_stage: verify
+run_stage: checked
 run_started: 2026-10-09T16:06
 run_finished: null
 reviewed: null
@@ -107,6 +107,8 @@ Brief закрито, коли є щонайменше 3 перевірені ц
 - 2026-10-09 20:38 · verify · verify №1 завершено: 14 ok, 4 inexact (знижено 1-01, 1-02, 1-06, 1-09)
 - 2026-10-09 20:39 · verify · скаут №3 завершив: 10 доказів (1 absence); запущено verify №3
 - 2026-10-10 01:09 · verify · останній verify зупинив ліміт API (429); відновлено
+- 2026-10-10 13:28 · verify · verify №3 завершено: 6 ok, 3 inexact (знижено 3-01, 3-05, 3-06); 3-09 поза вибіркою
+- 2026-10-10 13:28 · checked · усі 5 скаутів і 5 verify завершено
 
 ## Digest
 _(заповнює лід на кроці 7 playbook'у research)_
