@@ -75,6 +75,9 @@ best you can and list the gap in your return.
 
 ## Rules
 - Ukrainian for page content; quotes in the original language; keep terms like TAM/CAC.
+- Never put the user's personal data (email, name, account IDs) into any request,
+  header (including User-Agent), URL or payload. If a site requires a contact, use a
+  neutral one or skip the site and list it under «Прогалини».
 - No number without a source or an explicit estimate method.
 - No opinions of your own in evidence pages. `type: opinion` is for a named person's
   opinion in a source.
