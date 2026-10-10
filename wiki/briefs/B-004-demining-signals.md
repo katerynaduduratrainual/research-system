@@ -5,11 +5,11 @@ domain: D-001
 idea: null
 layer: signals
 author: "Katia"
-status: approved
+status: running
 created: 2026-10-09
 approved: 2026-10-09
-run_stage: queued
-run_started: null
+run_stage: scouts
+run_started: 2026-10-10T13:35
 run_finished: null
 reviewed: null
 budget:
@@ -89,6 +89,7 @@ Brief закрито, коли є хоча б 3 незалежні польов�
 - 2026-10-09 · draft · brief створено
 - 2026-10-09 16:06 · approved · гейт 1 пройдено
 - 2026-10-09 16:06 · queued · чекає на B-002 / B-003 (ліміт два прогони)
+- 2026-10-10 13:35 · scouts · B-002 пройшов гейт 2; запущено 4 скаути (підпитання 1–4)
 
 ## Digest
 _(заповнює лід на кроці 7 playbook'у research)_
