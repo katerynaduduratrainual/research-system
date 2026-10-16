@@ -3,7 +3,7 @@ id: T-demining-market-entry
 title: "Вхід на ринок розмінування: сертифікація, закупівлі, експорт"
 updated: 2026-10-10
 briefs: [B-005]
-domains: [D-001]
+domains: [D-001, D-002]
 status: active
 ---
 
