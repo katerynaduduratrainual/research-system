@@ -15,7 +15,7 @@ confidence:
   models: null
   signals: null
   entry: null
-briefs: []
+briefs: [B-007]
 candidates: []
 reports: []
 ---
