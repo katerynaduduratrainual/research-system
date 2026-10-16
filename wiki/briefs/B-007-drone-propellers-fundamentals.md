@@ -5,11 +5,11 @@ domain: D-002
 idea: null
 layer: fundamentals
 author: "Katia"
-status: approved
+status: running
 created: 2026-10-16
 approved: 2026-10-16
-run_stage: null
-run_started: null
+run_stage: scouts
+run_started: 2026-10-16T17:32
 run_finished: null
 reviewed: null
 budget:
@@ -136,6 +136,7 @@ FPV окремо і хто; є хоча б одна оцінка річного 
 ## Журнал прогону
 - 2026-10-16 17:25 · draft · brief створено
 - 2026-10-16 17:31 · approved · редактор: «давай далі про пропелери для FPV, перевір чи їх купують» — звужено до FPV, підпитання №1 про закупівлі
+- 2026-10-16 17:32 · scouts · запущено 6 скаутів (№1–6)
 
 ## Digest
 _(заповнює лід на кроці 7 playbook'у research)_
