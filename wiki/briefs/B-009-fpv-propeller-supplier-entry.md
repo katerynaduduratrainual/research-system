@@ -11,7 +11,7 @@ approved: 2026-10-19
 run_stage: null
 run_started: 2026-10-19T10:04
 run_finished: 2026-10-19T11:20
-reviewed: null
+reviewed: 2026-10-21
 budget:
   scouts: 5
   searches_per_scout: 12
@@ -140,6 +140,7 @@ Brief закрито, коли: є відповідь із джерелами (�
 - 2026-10-19 11:19 · digest · редактор: продовжити; lint, index, digest, теми
 - 2026-10-19 11:20 · collected · digest написано; тема T-drone-components-market-entry створена
 - 2026-10-21 · collected · після перевірки: claims 1-01, 2-03, 4-06, 5-09, 5-14, 5-16 виправлено за критиком, протиріччя 1-01 ↔ 2-02, повний список знижень у digest
+- 2026-10-21 16:27 · reviewed · гейт 2: редактор — далі; шар entry D-002 оновлено
 
 ## Digest
 **Перевірка:** 66 доказів — 54 ok, 12 inexact, 0 failed. Виправлено claims: 2-01
