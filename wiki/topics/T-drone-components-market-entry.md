@@ -3,7 +3,7 @@ id: T-drone-components-market-entry
 title: "Вхід постачальника компонентів дронів: військові, виробники, податки, експорт"
 updated: 2026-10-19
 briefs: [B-009]
-domains: [D-002]
+domains: [D-002, D-003]
 status: active
 ---
 

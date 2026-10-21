@@ -3,7 +3,7 @@ id: T-military-demining-ugv
 title: "Військове розмінування і НРК: задачі, закупівлі, загрози"
 updated: 2026-10-12
 briefs: [B-006]
-domains: [D-001, D-002]
+domains: [D-001, D-002, D-003]
 status: active
 ---
 

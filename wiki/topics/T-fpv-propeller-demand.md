@@ -3,7 +3,7 @@ id: T-fpv-propeller-demand
 title: "Попит на пропелери для FPV: як обирають і купують виробники та військові"
 updated: 2026-10-19
 briefs: [B-008]
-domains: [D-002]
+domains: [D-002, D-003]
 status: active
 ---
 
