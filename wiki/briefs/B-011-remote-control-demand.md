@@ -8,7 +8,7 @@ author: "Katia"
 status: running
 created: 2026-10-22
 approved: 2026-10-22
-run_stage: checked
+run_stage: digest
 run_started: 2026-10-22T11:39
 run_finished: null
 reviewed: null
@@ -96,6 +96,7 @@ Brief закрито, коли: є дані про ризик для екіпа�
 - 2026-10-22 11:46 · verify · скаут №4 завершив (9 доказів), запущено критика verify №4; усі скаути B-011 завершили
 - 2026-10-22 11:49 · verify · verify №4: 8 ok, 1 inexact (4-06 знижено: у донати конвертується популярність, не рейтинг єБалів)
 - 2026-10-22 11:49 · checked · зупинка після збору: 37 доказів, 33 ok, 4 inexact, 0 failed
+- 2026-10-22 13:05 · digest · редактор: продовжити; lint, index, digest, теми
 
 ## Digest
 _(заповнює лід на кроці 7 playbook'у research)_
