@@ -11,7 +11,7 @@ approved: 2026-10-22
 run_stage: null
 run_started: 2026-10-22T11:39
 run_finished: 2026-10-22T13:06
-reviewed: null
+reviewed: 2026-10-22
 budget:
   scouts: 4
   searches_per_scout: 12
@@ -99,6 +99,7 @@ Brief закрито, коли: є дані про ризик для екіпа�
 - 2026-10-22 11:49 · checked · зупинка після збору: 37 доказів, 33 ok, 4 inexact, 0 failed
 - 2026-10-22 13:05 · digest · редактор: продовжити; lint, index, digest, теми
 - 2026-10-22 13:06 · collected · digest написано; claims inexact переписано за критиком; тема T-remote-control-demand створена
+- 2026-10-22 13:10 · reviewed · гейт 2: редактор — далі; шар demand D-003 оновлено
 
 ## Digest
 **Перевірка:** 37 доказів (5 — absence) — 33 ok, 4 inexact, 0 failed. Знижено: 2-02 (ПЗ
