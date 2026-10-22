@@ -5,11 +5,11 @@ domain: D-003
 idea: null
 layer: entry
 author: "Katia"
-status: approved
+status: running
 created: 2026-10-22
 approved: 2026-10-22
-run_stage: queued
-run_started: null
+run_stage: scouts
+run_started: 2026-10-22T15:38
 run_finished: null
 reviewed: null
 budget:
@@ -78,6 +78,7 @@ Brief закрито, коли: відомо, чи потрібна кодифі
 - 2026-10-22 · draft · brief створено
 - 2026-10-22 11:39 · approved · редактор затвердив на гейті 1
 - 2026-10-22 11:39 · queued · чекає: B-011 і B-012
+- 2026-10-22 15:38 · scouts · B-012 пройшов гейт 2; запущено 4 скаути (№1–4)
 
 ## Digest
 _(заповнює лід на кроці 7 playbook'у research)_

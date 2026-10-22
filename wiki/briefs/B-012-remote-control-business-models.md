@@ -11,7 +11,7 @@ approved: 2026-10-22
 run_stage: null
 run_started: 2026-10-22T11:39
 run_finished: 2026-10-22T13:11
-reviewed: null
+reviewed: 2026-10-22
 budget:
   scouts: 4
   searches_per_scout: 12
@@ -94,6 +94,7 @@ Brief закрито, коли: є ціни хоч на 3 типи систем;
 - 2026-10-22 13:05 · checked · зупинка після збору: 50 доказів, 46 ok, 4 inexact, 0 failed
 - 2026-10-22 13:11 · digest · редактор: продовжити; lint, index, digest, теми
 - 2026-10-22 13:11 · collected · digest написано; claims inexact переписано за критиком; тема T-remote-control-business-models створена
+- 2026-10-22 15:38 · reviewed · гейт 2: редактор — далі; шар models D-003 оновлено
 
 ## Digest
 **Перевірка:** 50 доказів (5 — absence) — 46 ok, 4 inexact, 0 failed. Знижено: 1-05 (пропущено
