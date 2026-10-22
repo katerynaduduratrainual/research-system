@@ -11,7 +11,7 @@ approved: 2026-10-22
 run_stage: null
 run_started: 2026-10-22T15:38
 run_finished: 2026-10-22T19:30
-reviewed: null
+reviewed: 2026-10-22
 budget:
   scouts: 4
   searches_per_scout: 12
@@ -92,6 +92,7 @@ Brief закрито, коли: відомо, чи потрібна кодифі
 - 2026-10-22 16:15 · checked · зупинка після збору: 44 доказів, 41 ok, 3 inexact, 0 failed
 - 2026-10-22 19:30 · digest · редактор: продовжити; lint, index, digest, теми
 - 2026-10-22 19:30 · collected · digest написано; claims inexact переписано за критиком; тема T-remote-control-market-entry створена
+- 2026-10-22 19:43 · reviewed · гейт 2: редактор — далі; шар entry D-003 оновлено
 
 ## Digest
 **Перевірка:** 44 доказів (6 — absence) — 41 ok, 3 inexact, 0 failed. Знижено: 4-02 і 4-07
