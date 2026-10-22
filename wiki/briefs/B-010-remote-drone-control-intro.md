@@ -11,7 +11,7 @@ approved: 2026-10-21
 run_stage: null
 run_started: 2026-10-21T17:52
 run_finished: 2026-10-21T18:45
-reviewed: null
+reviewed: 2026-10-22
 budget:
   scouts: 6
   searches_per_scout: 12
@@ -144,6 +144,7 @@ Brief закрито, коли: є схема способів віддален�
 - 2026-10-21 18:06 · checked · зупинка після збору: 79 доказів, 73 ok, 6 inexact, 0 failed
 - 2026-10-21 18:42 · digest · редактор: продовжити; lint, index, digest, теми
 - 2026-10-21 18:45 · collected · digest написано; claims 6 inexact переписано за критиком; теми T-remote-drone-control і T-drone-ew-and-autonomy створено
+- 2026-10-22 10:57 · reviewed · гейт 2: редактор — далі; шар fundamentals D-003 оновлено
 
 ## Digest
 **Перевірка:** 79 доказів (10 — absence) — 73 ok, 6 inexact, 0 failed. Знижено: 3-09
