@@ -3,11 +3,11 @@ id: D-003
 title: "Віддалене керування дронами"
 owner: "Katia"
 author: "Katia"
-status: active
+status: closed
 phase: map
-checkpoint: ready
+checkpoint: null
 created: 2026-10-21
-updated: 2026-10-22
+updated: 2026-10-23
 target: 2027-02-10
 confidence:
   fundamentals: medium
@@ -218,3 +218,4 @@ _(пише лід на зупинці фокусу, лише з доказів �
 - 2026-10-22 — критик завершив атаку (wiki/critique/D-003-critique.md); запущено verify E-D003-C-01, C-02
 - 2026-10-22 — verify E-D003-C-01, C-02: 2 ok; запущено письменника (звіт напряму R-005)
 - 2026-10-22 — звіт напряму R-005 готовий; чекає рішення редактора (фокус / ще раунд / змінити межі / закрити)
+- 2026-10-23 — /decide close: залежність від Starlink — канал з тилу контролює SpaceX, фічу вбудовують виробники дронів
