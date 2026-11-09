@@ -11,7 +11,7 @@ approved: 2026-11-09
 run_stage: null
 run_started: 2026-11-09T14:34
 run_finished: 2026-11-09T15:07
-reviewed: null
+reviewed: 2026-11-09
 budget:
   scouts: 6
   searches_per_scout: 12
